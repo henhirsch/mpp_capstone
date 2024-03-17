@@ -91,6 +91,9 @@ line1 <- ggplot(data = nccs2, aes(x = Year, y = INCOME, color = NAME)) +
 # create copy of initial data frame
 test_data1 <- test_data0
 
+# make service_branch a factor variable
+test_data1$service_branch <- as.factor(test_data1$service_branch)
+
 # create latitude and longitude columns from coordinates column
 coordinates_split <- strsplit(as.character(test_data1$coordinates), ", ")
 
@@ -101,7 +104,7 @@ test_data1$latitude <- latitude
 test_data1$longitude <- longitude
 
 # change order of columns
-test_data1 <- test_data1[, c("state", "base", "service_branch", "zip_code", "coordinates", "latitude", "longitude", "nmc", "miles_to_nmc", "total_sponsors", "total_spouses", "children0-5", "children6-11", "children12-18", "children19andup", "other_dependents", "total_personnel")]
+test_data1 <- test_data1[, c("state", "base", "service_branch", "zip_code", "coordinates", "longitude", "latitude", "nmc", "miles_to_nmc", "total_sponsors", "total_spouses", "children0-5", "children6-11", "children12-18", "children19andup", "other_dependents", "total_personnel")]
 
 # remove rows where base = Other
 test_data2 <- test_data1[test_data1$base != "Other", ]
@@ -109,11 +112,25 @@ test_data2 <- test_data1[test_data1$base != "Other", ]
 # remove rows where service_branch = DoD?
 
 # make latitude and longitude columns numeric
-test_data2$latitude <- as.numeric(test_data2$latitude)
-test_data2$longitude <- as.numeric(test_data2$longitude)
+# test_data2$latitude <- as.numeric(test_data2$latitude)
+# test_data2$longitude <- as.numeric(test_data2$longitude)
 
 # set number of decimal points equal to 6
 test_data2$latitude <- format(test_data2$latitude, nsmall = 6)
 test_data2$longitude <- format(test_data2$longitude, nsmall = 6)
 
+# make latitude and longitude columns numeric
+test_data2$latitude <- as.numeric(test_data2$latitude)
+test_data2$longitude <- as.numeric(test_data2$longitude)
+
+# transform values
+transformed_data <- usmap_transform(test_data2, input_names = c("longitude", "latitude"), output_names = NULL)
+
+dot_map <- plot_usmap() +
+  geom_sf(
+    data = transformed_data,
+    aes(size = total_sponsors, fill = service_branch)
+  )
+
+dot_map
 ```
