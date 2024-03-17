@@ -21,8 +21,7 @@ library(here)
 library(tidyverse)
 library(readxl)
 library(usmap)
-library(ggrepel)
-library(ggspatial)
+# library(ggspatial)
 ```
 
 The `i_am` function identifies where the Rmd is located within the main project directory. All future calls to files are based on their relative location to the project root.
