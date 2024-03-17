@@ -131,6 +131,11 @@ dot_map <- plot_usmap() +
     data = transformed_data,
     aes(size = total_sponsors, color = service_branch),
     alpha = 0.75
-  ) 
+  ) +
+  scale_color_manual(values = c("Navy" = "darkblue", 
+                                 "Army" = "yellow", 
+                                 "Marine Corps" = "green", 
+                                 "Air Force" = "lightblue", 
+                                 "DoD" = "orange"))
 dot_map
 ```
