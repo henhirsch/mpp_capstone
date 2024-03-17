@@ -129,8 +129,8 @@ transformed_data <- usmap_transform(test_data2, input_names = c("longitude", "la
 dot_map <- plot_usmap() +
   geom_sf(
     data = transformed_data,
-    aes(size = total_sponsors, fill = service_branch)
-  )
-
+    aes(size = total_sponsors, color = service_branch),
+    alpha = 0.75
+  ) 
 dot_map
 ```
