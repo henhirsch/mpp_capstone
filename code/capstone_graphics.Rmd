@@ -87,12 +87,16 @@ line1 <- ggplot(data = nccs2, aes(x = Year, y = INCOME, color = NAME)) +
 
 ```
 
-```{r map military installation headcounts}
+```{r map all military installation headcounts}
 # create copy of initial data frame
 test_data1 <- test_data0
 
 # make service_branch a factor variable
 test_data1$service_branch <- as.factor(test_data1$service_branch)
+
+# add column showing whether headcount is >= 2000
+test_data1 <- test_data1 %>%
+  mutate(headcount_below_2000 = ifelse(total_sponsors < 2000, "Yes", "No"))
 
 # create latitude and longitude columns from coordinates column
 coordinates_split <- strsplit(as.character(test_data1$coordinates), ", ")
@@ -104,7 +108,7 @@ test_data1$latitude <- latitude
 test_data1$longitude <- longitude
 
 # change order of columns
-test_data1 <- test_data1[, c("state", "base", "service_branch", "zip_code", "coordinates", "longitude", "latitude", "nmc", "miles_to_nmc", "total_sponsors", "total_spouses", "children0-5", "children6-11", "children12-18", "children19andup", "other_dependents", "total_personnel")]
+test_data1 <- test_data1[, c("state", "base", "service_branch", "zip_code", "coordinates", "longitude", "latitude", "nmc", "miles_to_nmc", "headcount_below_2000", "total_sponsors", "total_spouses", "children0-5", "children6-11", "children12-18", "children19andup", "other_dependents", "total_personnel")]
 
 # remove rows where base = Other
 test_data2 <- test_data1[test_data1$base != "Other", ]
@@ -126,16 +130,41 @@ test_data2$longitude <- as.numeric(test_data2$longitude)
 # transform values
 transformed_data <- usmap_transform(test_data2, input_names = c("longitude", "latitude"), output_names = NULL)
 
-dot_map <- plot_usmap() +
+all_installations_map <- plot_usmap() +
   geom_sf(
     data = transformed_data,
     aes(size = total_sponsors, color = service_branch),
-    alpha = 0.75
+    alpha = 0.60
   ) +
-  scale_color_manual(values = c("Navy" = "darkblue", 
-                                 "Army" = "yellow", 
-                                 "Marine Corps" = "green", 
-                                 "Air Force" = "lightblue", 
-                                 "DoD" = "orange"))
-dot_map
+  scale_color_manual(values = c("Navy" = "blue", 
+                                 "Army" = "green", 
+                                 "Marine Corps" = "red", 
+                                 "Air Force" = "orange", 
+                                 "DoD" = "purple"))
+all_installations_map
 ```
+
+```{r map military installations with headcount less than 2000}
+# create small installations data frame
+small_installations <- transformed_data[transformed_data$headcount_below_2000 == "Yes", ]
+
+# map small installations
+
+small_installations_map <- plot_usmap() +
+  geom_sf(
+    data = small_installations,
+    aes(size = total_sponsors, color = service_branch),
+    alpha = 0.60
+  ) +
+  scale_color_manual(values = c("Navy" = "blue", 
+                                 "Army" = "green", 
+                                 "Marine Corps" = "red", 
+                                 "Air Force" = "orange", 
+                                 "DoD" = "purple")) +
+   theme(legend.position = c(0.93, 0.1),
+        legend.key.width = unit(2, "cm")) # Increase the width of the legend key  # Adjust x and y coordinates as needed
+small_installations_map
+
+
+```
+
