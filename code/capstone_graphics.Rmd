@@ -21,7 +21,7 @@ library(here)
 library(tidyverse)
 library(readxl)
 library(usmap)
-# library(ggspatial)
+library(scales)
 ```
 
 The `i_am` function identifies where the Rmd is located within the main project directory. All future calls to files are based on their relative location to the project root.
@@ -136,11 +136,22 @@ all_installations_map <- plot_usmap() +
     aes(size = total_sponsors, color = service_branch),
     alpha = 0.60
   ) +
+  labs(title = "Active Duty Personnel on U.S. Military Installations") + 
   scale_color_manual(values = c("Navy" = "blue", 
                                  "Army" = "green", 
                                  "Marine Corps" = "red", 
                                  "Air Force" = "orange", 
-                                 "DoD" = "purple"))
+                                 "DoD" = "purple"),
+                     name = "Service Branch") +
+  scale_size_continuous(labels = comma, 
+                        name = "Active Duty Headcount") +
+  theme(plot.title = element_text(hjust = 0.5, size = 20),
+        legend.position = "right",
+        legend.direction = "vertical",
+        legend.box = "vertical",
+        legend.justification = "left",
+        legend.spacing.y = unit(0.25, "cm"))
+
 all_installations_map
 ```
 
