@@ -160,9 +160,10 @@ all_installations_map <- plot_usmap() +
         legend.box = "vertical",
         legend.justification = "right",
         legend.spacing = unit(0.5, "cm"),
-        legend.margin = margin(r = -100),
+        legend.margin = margin(r = -120),
+        legend.title = element_text(size = 11),
         legend.text = element_text(size = 10),
-        legend.key.size = unit(2, "lines"),
+        legend.key.size = unit(1, "lines"),
         plot.margin = margin(20, 20, 20, 20))
 
 all_installations_map
