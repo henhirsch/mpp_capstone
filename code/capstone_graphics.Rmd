@@ -22,6 +22,7 @@ library(tidyverse)
 library(readxl)
 library(usmap)
 library(scales)
+library(ggtext)
 ```
 
 The `i_am` function identifies where the Rmd is located within the main project directory. All future calls to files are based on their relative location to the project root.
@@ -131,10 +132,10 @@ test_data2$longitude <- as.numeric(test_data2$longitude)
 transformed_data <- usmap_transform(test_data2, input_names = c("longitude", "latitude"), output_names = NULL)
 
 # set caption text
-installations_caption_text <- paste("Source: 2019 Department of Defense Demographics Report. No newer data on military installation headcounts is available. The Department of Defense stopped publishing disaggregated headcount data after 2019.")
+installations_caption_text <- paste("Source: The Department of Defense's 2019 Demographics Report. No newer data on military installation headcounts is available. The Department of Defense stopped publishing disaggregated headcount data after 2019.")
 
 # set wrapped caption width
-installations_wrapped_caption <- paste(strwrap(installations_caption_text, width = 75), collapse = "\n")
+installations_wrapped_caption <- paste(strwrap(installations_caption_text, width = 78), collapse = "\n")
 
 # plot map
 all_installations_map <- plot_usmap() +
@@ -152,17 +153,19 @@ all_installations_map <- plot_usmap() +
                                  "DoD" = "purple"),
                      name = "Service Branch") +
   scale_size_continuous(labels = comma, 
-                        name = "Active Duty Headcount") +
-  theme(plot.title = element_text(hjust = 0.5, size = 20),
+                        name = "Installation Headcount") +
+  theme(plot.title = element_text(hjust = 0, size = 25),
         legend.position = "left",
         legend.direction = "vertical",
         legend.box = "vertical",
         legend.justification = "right",
-        legend.spacing.y = unit(0.25, "cm"),
+        legend.spacing.x = unit(0, "cm"),
+        legend.spacing.y = unit(0.1, "cm"),
         legend.margin = margin(r = -100),
         legend.text = element_text(size = 10),
         legend.key.size = unit(2, "lines"),
-        plot.caption = element_text(hjust = 0, margin = margin(t = 10, r = 0, b = 0, l = 0)))
+        # plot.caption = element_text(hjust = 0, margin = margin(t = 10, r = 0, b = 0, l = 0)),
+        plot.margin = margin(20, 20, 20, 20))
 
 all_installations_map
 
