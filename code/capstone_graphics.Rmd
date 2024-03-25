@@ -22,7 +22,6 @@ library(tidyverse)
 library(readxl)
 library(usmap)
 library(scales)
-library(ggtext)
 ```
 
 The `i_am` function identifies where the Rmd is located within the main project directory. All future calls to files are based on their relative location to the project root.
@@ -63,28 +62,28 @@ us_map_headcount
 ```
 
 ```{r generate nonprofit assets line graph}
-nccs1 <- nccs0[ , c("Year", "EIN", "NAME", "ASSETS", "INCOME", "CASSETS", "CTOTREV")]
-nccs2 <- nccs1[nccs1$NAME != "WOUNDED WARRIOR PROJECT INC", , drop = FALSE]
-
-nccs2 <- nccs2 %>% 
-  mutate(NAME = factor(NAME,
-                        levels = c("ARMED SERVICES YMCA OF THE USA", 
-                                   "NAVY-MARINE CORPS RELIEF SOCIETY",
-                                   "AIR FORCE AID SOCIETY INC", 
-                                   "FIRST COMMAND EDUCATIONAL FOUNDATION",
-                                   "SAC FOUNDATION", 
-                                   "AMERICAN WARRIOR ASSOCIATION"),
-                        labels = c("Armed Services YMCA of the USA", 
-                                   "Navy-Marine Corps Relief Society",
-                                   "Air Force Aid Society Inc.", 
-                                   "First Command Educational Foundation",
-                                   "SAC Foundation", 
-                                   "American Warrior Association")))
-
-line1 <- ggplot(data = nccs2, aes(x = Year, y = INCOME, color = NAME)) +
-  geom_line() +
-  labs(x = "Year", y = "Assets") +
-  ggtitle("Assets Over Time")
+# nccs1 <- nccs0[ , c("Year", "EIN", "NAME", "ASSETS", "INCOME", "CASSETS", "CTOTREV")]
+# nccs2 <- nccs1[nccs1$NAME != "WOUNDED WARRIOR PROJECT INC", , drop = FALSE]
+# 
+# nccs2 <- nccs2 %>% 
+#   mutate(NAME = factor(NAME,
+#                         levels = c("ARMED SERVICES YMCA OF THE USA", 
+#                                    "NAVY-MARINE CORPS RELIEF SOCIETY",
+#                                    "AIR FORCE AID SOCIETY INC", 
+#                                    "FIRST COMMAND EDUCATIONAL FOUNDATION",
+#                                    "SAC FOUNDATION", 
+#                                    "AMERICAN WARRIOR ASSOCIATION"),
+#                         labels = c("Armed Services YMCA of the USA", 
+#                                    "Navy-Marine Corps Relief Society",
+#                                    "Air Force Aid Society Inc.", 
+#                                    "First Command Educational Foundation",
+#                                    "SAC Foundation", 
+#                                    "American Warrior Association")))
+# 
+# line1 <- ggplot(data = nccs2, aes(x = Year, y = INCOME, color = NAME)) +
+#   geom_line() +
+#   labs(x = "Year", y = "Assets") +
+#   ggtitle("Assets Over Time")
 
 ```
 
@@ -184,14 +183,33 @@ small_installations_map <- plot_usmap() +
     aes(size = total_sponsors, color = service_branch),
     alpha = 0.60
   ) +
+  labs(title = "Active Duty Personnel on Small* U.S. Military Installations",
+       subtitle = "* Small installations are defined as those with headcounts below 2,000.",
+       caption = installations_wrapped_caption) + 
   scale_color_manual(values = c("Navy" = "blue", 
                                  "Army" = "green", 
                                  "Marine Corps" = "red", 
                                  "Air Force" = "orange", 
-                                 "DoD" = "purple")) +
-   theme(legend.position = c(0.93, 0.1),
-        legend.key.width = unit(2, "cm")) # Increase the width of the legend key  # Adjust x and y coordinates as needed
+                                 "DoD" = "purple"),
+                     name = "Service Branch") +
+  scale_size_continuous(labels = comma, 
+                        name = "Installation Headcount") +
+  theme(plot.title = element_text(hjust = 0, size = 25),
+        legend.position = "left",
+        legend.direction = "vertical",
+        legend.box = "vertical",
+        legend.justification = "right",
+        legend.spacing = unit(0.5, "cm"),
+        legend.margin = margin(r = -120),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        legend.key.size = unit(1, "lines"),
+        plot.margin = margin(20, 20, 20, 20))
+
 small_installations_map
+
+# export map
+ggsave(here("output", "small_installations_map.jpg"), plot = small_installations_map, width = 12, height = 9, dpi = 300)
 
 
 ```
