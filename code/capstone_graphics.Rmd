@@ -159,12 +159,10 @@ all_installations_map <- plot_usmap() +
         legend.direction = "vertical",
         legend.box = "vertical",
         legend.justification = "right",
-        legend.spacing.x = unit(0, "cm"),
-        legend.spacing.y = unit(0.1, "cm"),
+        legend.spacing = unit(0.5, "cm"),
         legend.margin = margin(r = -100),
         legend.text = element_text(size = 10),
         legend.key.size = unit(2, "lines"),
-        # plot.caption = element_text(hjust = 0, margin = margin(t = 10, r = 0, b = 0, l = 0)),
         plot.margin = margin(20, 20, 20, 20))
 
 all_installations_map
