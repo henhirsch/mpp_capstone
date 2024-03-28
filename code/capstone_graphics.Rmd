@@ -36,6 +36,10 @@ i_am("code/capstone_graphics.Rmd")
 data_file1 = "data/DMDC_Website_Location_Report_2312_clean.xlsx"
 data_file2 = "data/nccs.csv"
 data_file3 = "data/test_data.xlsx"
+data_file4 = "data/installation_chapels.xlsx"
+data_file5 = "data/installation_military_family_support_centers.xlsx"
+data_file6 = "data/installation_morale_welfare_recreation.xlsx"
+data_file7 = "data/installation_personal_financial_management_services.xlsx"
 ```
 
 
@@ -44,7 +48,10 @@ data_file3 = "data/test_data.xlsx"
 headcount0 <- read_excel(here(data_file1))
 nccs0 <- read.csv(here(data_file2))
 test_data0 <- read_excel(here(data_file3))
-
+chapels0 <- read_excel(here(data_file4))
+support_centers0 <- read_excel(here(data_file5))
+mwr0 <- read_excel(here(data_file6))
+financial_services0 <- read_excel(here(data_file7))
 ```
 
 
@@ -175,8 +182,7 @@ ggsave(here("output", "all_installations_map.jpg"), plot = all_installations_map
 # create small installations data frame
 small_installations <- transformed_data[transformed_data$headcount_below_2000 == "Yes", ]
 
-# map small installations
-
+# plot map
 small_installations_map <- plot_usmap() +
   geom_sf(
     data = small_installations,
@@ -210,7 +216,10 @@ small_installations_map
 
 # export map
 ggsave(here("output", "small_installations_map.jpg"), plot = small_installations_map, width = 12, height = 9, dpi = 300)
+```
+
+```{r create map of base services}
+
 
 
 ```
-
