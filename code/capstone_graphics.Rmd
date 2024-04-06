@@ -152,7 +152,7 @@ all_installations_map <- plot_usmap() +
     aes(size = total_sponsors, color = service_branch),
     alpha = 0.60
   ) +
-  labs(title = "Active Duty Personnel on U.S. Military Installations",
+  labs(title = "Active Duty Personnel on U.S. Military Installations (2019)",
        caption = installations_wrapped_caption) + 
   scale_color_manual(values = c("Navy" = "blue", 
                                  "Army" = "green", 
@@ -191,8 +191,8 @@ small_installations_map <- plot_usmap() +
     aes(size = total_sponsors, color = service_branch),
     alpha = 0.60
   ) +
-  labs(title = "Active Duty Personnel on Small* U.S. Military Installations",
-       subtitle = "* Small installations are defined as those with headcounts below 2,000.",
+  labs(title = "Active Duty Personnel on Small U.S. Military Installations (2019)",
+       subtitle = "Small installations are defined as those with headcounts below 2,000.",
        caption = installations_wrapped_caption) + 
   scale_color_manual(values = c("Navy" = "blue", 
                                  "Army" = "green", 
@@ -239,14 +239,40 @@ median_rent1 <- median_rent1[median_rent1$median_contract_rent != "null", ]
 # convert median_contract_rent column to numeric
 median_rent1$median_contract_rent <- as.numeric(median_rent1$median_contract_rent)
 
+# set subtitle
+rent_subtitle_text <- "ACS defines contract rent as the monthly rent agreed to or contracted for, regardless of any furnishings, utilities, fees, meals, or services that may be included."
+
+wrapped_rent_subtitle <- str_wrap(rent_subtitle_text, width = 100)
+
+# set caption 
+rent_caption_text <- paste("Source: The American Community Survey (ACS) 5-Year Data (2009-2022)")
+
+# set wrapped caption width
+rent_wrapped_caption <- paste(strwrap(rent_caption_text, width = 78), collapse = "\n")
+
+
 # plot rent map
 rent_map <- plot_usmap(regions = "counties", data = median_rent1, values = "median_contract_rent", labels = FALSE) + 
   labs(title = "Median Contract Rent by County (2022)",
-       subtitle = "Contract Rent = ") + 
+       subtitle = wrapped_rent_subtitle,
+       caption = rent_wrapped_caption) + 
   scale_fill_continuous(low = "white", high = "red", name = "Median Monthly Rent ($)", label = scales::comma) + 
-  theme(panel.background=element_blank(),
-        legend.position = "right")
+theme(plot.title = element_text(hjust = 0, size = 25),
+        legend.position = "left",
+        legend.direction = "vertical",
+        legend.box = "vertical",
+        legend.justification = "right",
+        legend.spacing = unit(0.5, "cm"),
+        legend.margin = margin(r = -120),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        legend.key.size = unit(1, "lines"),
+        plot.margin = margin(20, 20, 20, 20))
+
 rent_map
+
+# export map
+ggsave(here("output", "rent_map.jpg"), plot = rent_map, width = 12, height = 9, dpi = 300)
 
 
 ```
