@@ -220,7 +220,7 @@ small_installations_map
 ggsave(here("output", "small_installations_map.jpg"), plot = small_installations_map, width = 12, height = 9, dpi = 300)
 ```
 
-```{r create map of median gross rent by county for 2022}
+```{r create map of median contract rent by county for 2022}
 # rename columns
 colnames(median_rent0) <- c("fips", "county", "median_contract_rent", "margin", "X")
 
@@ -240,15 +240,15 @@ median_rent1 <- median_rent1[median_rent1$median_contract_rent != "null", ]
 median_rent1$median_contract_rent <- as.numeric(median_rent1$median_contract_rent)
 
 # set subtitle
-rent_subtitle_text <- "The ACS defines contract rent as the monthly rent agreed to or contracted for, regardless of any furnishings, utilities, fees, meals, or services that may be included."
+rent_subtitle_text <- "The American Community Survey defines contract rent as the monthly rent agreed to or contracted for, regardless of any furnishings, utilities, fees, meals, or services that may be included."
 
 wrapped_rent_subtitle <- str_wrap(rent_subtitle_text, width = 100)
 
 # set caption 
-rent_caption_text <- paste("Source: The U.S. Census Bureau's American Community Survey (ACS), 5-Year Data (2009-2022)")
+rent_caption_text <- paste("Source: The U.S. Census Bureau's American Community Survey, 5-Year Data (2009-2022)")
 
 # set wrapped caption width
-rent_wrapped_caption <- paste(strwrap(rent_caption_text, width = 55), collapse = "\n")
+rent_wrapped_caption <- paste(strwrap(rent_caption_text, width = 45), collapse = "\n")
 
 
 # plot rent map
@@ -256,7 +256,7 @@ rent_map <- plot_usmap(regions = "counties", data = median_rent1, values = "medi
   labs(title = "Median Contract Rent by County (2022)",
        subtitle = wrapped_rent_subtitle,
        caption = rent_wrapped_caption) + 
-  scale_fill_continuous(low = "white", high = "red", name = "Median Monthly Rent", label = scales::dollar_format()) + 
+  scale_fill_continuous(low = "white", high = "red", name = "Median Contract Rent", label = scales::dollar_format()) + 
 theme(plot.title = element_text(hjust = 0, size = 25),
         legend.position = "left",
         legend.direction = "vertical",
