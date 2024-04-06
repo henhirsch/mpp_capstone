@@ -40,6 +40,7 @@ data_file4 = "data/installation_chapels.xlsx"
 data_file5 = "data/installation_military_family_support_centers.xlsx"
 data_file6 = "data/installation_morale_welfare_recreation.xlsx"
 data_file7 = "data/installation_personal_financial_management_services.xlsx"
+data_file8 = "data/median_contract_rent_county_2022.csv"
 ```
 
 
@@ -52,6 +53,7 @@ chapels0 <- read_excel(here(data_file4))
 support_centers0 <- read_excel(here(data_file5))
 mwr0 <- read_excel(here(data_file6))
 financial_services0 <- read_excel(here(data_file7))
+median_rent0 <- read.csv(here(data_file8))
 ```
 
 
@@ -218,8 +220,33 @@ small_installations_map
 ggsave(here("output", "small_installations_map.jpg"), plot = small_installations_map, width = 12, height = 9, dpi = 300)
 ```
 
-```{r create map of base services}
+```{r create map of median gross rent by county for 2022}
+# rename columns
+colnames(median_rent0) <- c("fips", "county", "median_contract_rent", "margin", "X")
 
+# remove first row
+median_rent1 <- median_rent0[-1, ]
+
+# remove unneeded columns
+median_rent1 <- subset(median_rent1, select = -c(margin, X))
+
+# turn geo_id into county fips codes
+median_rent1$fips <- substr(median_rent1$fips, nchar(median_rent1$fips) - 4, nchar(median_rent1$fips))
+
+# remove rows with null values for median_gross_rent
+median_rent1 <- median_rent1[median_rent1$median_contract_rent != "null", ]
+
+# convert median_contract_rent column to numeric
+median_rent1$median_contract_rent <- as.numeric(median_rent1$median_contract_rent)
+
+# plot rent map
+rent_map <- plot_usmap(regions = "counties", data = median_rent1, values = "median_contract_rent", labels = FALSE) + 
+  labs(title = "Median Contract Rent by County (2022)",
+       subtitle = "Contract Rent = ") + 
+  scale_fill_continuous(low = "white", high = "red", name = "Median Monthly Rent ($)", label = scales::comma) + 
+  theme(panel.background=element_blank(),
+        legend.position = "right")
+rent_map
 
 
 ```
