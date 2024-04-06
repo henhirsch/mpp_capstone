@@ -35,7 +35,7 @@ i_am("code/capstone_graphics.Rmd")
 # point to datasets
 data_file1 = "data/DMDC_Website_Location_Report_2312_clean.xlsx"
 data_file2 = "data/nccs.csv"
-data_file3 = "data/test_data.xlsx"
+data_file3 = "data/master_data.xlsx"
 data_file4 = "data/installation_chapels.xlsx"
 data_file5 = "data/installation_military_family_support_centers.xlsx"
 data_file6 = "data/installation_morale_welfare_recreation.xlsx"
@@ -48,7 +48,7 @@ data_file8 = "data/median_contract_rent_county_2022.csv"
 # load data using here
 headcount0 <- read_excel(here(data_file1))
 nccs0 <- read.csv(here(data_file2))
-test_data0 <- read_excel(here(data_file3))
+master_data0 <- read_excel(here(data_file3))
 chapels0 <- read_excel(here(data_file4))
 support_centers0 <- read_excel(here(data_file5))
 mwr0 <- read_excel(here(data_file6))
@@ -98,46 +98,46 @@ us_map_headcount
 
 ```{r map all military installation headcounts}
 # create copy of initial data frame
-test_data1 <- test_data0
+master_data1 <- master_data0
 
 # make service_branch a factor variable
-test_data1$service_branch <- as.factor(test_data1$service_branch)
+master_data1$service_branch <- as.factor(master_data1$service_branch)
 
 # add column showing whether headcount is >= 2000
-test_data1 <- test_data1 %>%
+master_data1 <- master_data1 %>%
   mutate(headcount_below_2000 = ifelse(total_sponsors < 2000, "Yes", "No"))
 
 # create latitude and longitude columns from coordinates column
-coordinates_split <- strsplit(as.character(test_data1$coordinates), ", ")
+coordinates_split <- strsplit(as.character(master_data1$coordinates), ", ")
 
 latitude <- sapply(coordinates_split, `[`, 1)
 longitude <- sapply(coordinates_split, `[`, 2)
 
-test_data1$latitude <- latitude
-test_data1$longitude <- longitude
+master_data1$latitude <- latitude
+master_data1$longitude <- longitude
 
 # change order of columns
-test_data1 <- test_data1[, c("state", "base", "service_branch", "zip_code", "coordinates", "longitude", "latitude", "nmc", "miles_to_nmc", "headcount_below_2000", "total_sponsors", "total_spouses", "children0-5", "children6-11", "children12-18", "children19andup", "other_dependents", "total_personnel")]
+master_data1 <- master_data1[, c("state", "base", "service_branch", "zip_code", "coordinates", "longitude", "latitude", "nmc", "miles_to_nmc", "headcount_below_2000", "total_sponsors", "total_spouses", "children0-5", "children6-11", "children12-18", "children19andup", "other_dependents", "total_personnel")]
 
 # remove rows where base = Other
-test_data2 <- test_data1[test_data1$base != "Other", ]
+master_data2 <- master_data1[master_data1$base != "Other", ]
 
-# remove rows where service_branch = DoD?
+# remove rows where service_branch = DOD?
 
 # make latitude and longitude columns numeric
-# test_data2$latitude <- as.numeric(test_data2$latitude)
-# test_data2$longitude <- as.numeric(test_data2$longitude)
+# master_data2$latitude <- as.numeric(master_data2$latitude)
+# master_data2$longitude <- as.numeric(master_data2$longitude)
 
 # set number of decimal points equal to 6
-test_data2$latitude <- format(test_data2$latitude, nsmall = 6)
-test_data2$longitude <- format(test_data2$longitude, nsmall = 6)
+master_data2$latitude <- format(master_data2$latitude, nsmall = 6)
+master_data2$longitude <- format(master_data2$longitude, nsmall = 6)
 
 # make latitude and longitude columns numeric
-test_data2$latitude <- as.numeric(test_data2$latitude)
-test_data2$longitude <- as.numeric(test_data2$longitude)
+master_data2$latitude <- as.numeric(master_data2$latitude)
+master_data2$longitude <- as.numeric(master_data2$longitude)
 
 # transform values
-transformed_data <- usmap_transform(test_data2, input_names = c("longitude", "latitude"), output_names = NULL)
+transformed_data <- usmap_transform(master_data2, input_names = c("longitude", "latitude"), output_names = NULL)
 
 # set caption text
 installations_caption_text <- paste("Source: The Department of Defense's 2019 Demographics Report. No newer data on military installation headcounts is available. The Department of Defense stopped publishing disaggregated headcount data after 2019.")
@@ -158,7 +158,7 @@ all_installations_map <- plot_usmap() +
                                  "Army" = "green", 
                                  "Marine Corps" = "red", 
                                  "Air Force" = "orange", 
-                                 "DoD" = "purple"),
+                                 "DOD" = "purple"),
                      name = "Service Branch") +
   scale_size_continuous(labels = comma, 
                         name = "Installation Headcount") +
@@ -198,7 +198,7 @@ small_installations_map <- plot_usmap() +
                                  "Army" = "green", 
                                  "Marine Corps" = "red", 
                                  "Air Force" = "orange", 
-                                 "DoD" = "purple"),
+                                 "DOD" = "purple"),
                      name = "Service Branch") +
   scale_size_continuous(labels = comma, 
                         name = "Installation Headcount") +
