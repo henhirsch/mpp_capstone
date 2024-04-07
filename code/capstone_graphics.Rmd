@@ -34,26 +34,18 @@ i_am("code/capstone_graphics.Rmd")
 
 # point to datasets
 data_file1 = "data/DMDC_Website_Location_Report_2312_clean.xlsx"
-data_file2 = "data/nccs.csv"
-data_file3 = "data/master_data.xlsx"
-data_file4 = "data/installation_chapels.xlsx"
-data_file5 = "data/installation_military_family_support_centers.xlsx"
-data_file6 = "data/installation_morale_welfare_recreation.xlsx"
-data_file7 = "data/installation_personal_financial_management_services.xlsx"
-data_file8 = "data/median_contract_rent_county_2022.csv"
+data_file2 = "data/installation_data.xlsx"
+data_file3 = "data/median_contract_rent_county_2022.csv"
 ```
 
 
 ```{r load data}
 # load data using here
 headcount0 <- read_excel(here(data_file1))
-nccs0 <- read.csv(here(data_file2))
-master_data0 <- read_excel(here(data_file3))
-chapels0 <- read_excel(here(data_file4))
-support_centers0 <- read_excel(here(data_file5))
-mwr0 <- read_excel(here(data_file6))
-financial_services0 <- read_excel(here(data_file7))
-median_rent0 <- read.csv(here(data_file8))
+master_data0 <- read_excel(here(data_file2), sheet = "Master Data Set (2019)")
+median_rent0 <- read.csv(here(data_file3))
+demos_2019_0<- read_excel(here(data_file2), sheet = "State Demos (2019)")
+demos_2022_0<- read_excel(here(data_file2), sheet = "State Demos (2022)")
 ```
 
 
@@ -68,33 +60,10 @@ us_map_headcount <- plot_usmap(regions = "states", data = state_headcounts, valu
   theme(panel.background=element_blank(),
         legend.position = "right")
 us_map_headcount
-```
-
-```{r generate nonprofit assets line graph}
-# nccs1 <- nccs0[ , c("Year", "EIN", "NAME", "ASSETS", "INCOME", "CASSETS", "CTOTREV")]
-# nccs2 <- nccs1[nccs1$NAME != "WOUNDED WARRIOR PROJECT INC", , drop = FALSE]
-# 
-# nccs2 <- nccs2 %>% 
-#   mutate(NAME = factor(NAME,
-#                         levels = c("ARMED SERVICES YMCA OF THE USA", 
-#                                    "NAVY-MARINE CORPS RELIEF SOCIETY",
-#                                    "AIR FORCE AID SOCIETY INC", 
-#                                    "FIRST COMMAND EDUCATIONAL FOUNDATION",
-#                                    "SAC FOUNDATION", 
-#                                    "AMERICAN WARRIOR ASSOCIATION"),
-#                         labels = c("Armed Services YMCA of the USA", 
-#                                    "Navy-Marine Corps Relief Society",
-#                                    "Air Force Aid Society Inc.", 
-#                                    "First Command Educational Foundation",
-#                                    "SAC Foundation", 
-#                                    "American Warrior Association")))
-# 
-# line1 <- ggplot(data = nccs2, aes(x = Year, y = INCOME, color = NAME)) +
-#   geom_line() +
-#   labs(x = "Year", y = "Assets") +
-#   ggtitle("Assets Over Time")
 
 ```
+
+
 
 ```{r map all military installation headcounts}
 # create copy of initial data frame
@@ -227,14 +196,15 @@ colnames(median_rent0) <- c("fips", "county", "median_contract_rent", "margin", 
 # remove first row
 median_rent1 <- median_rent0[-1, ]
 
+# remove null rows 
+median_rent1 <- median_rent1[median_rent1$margin != "**", ]
+median_rent1 <- median_rent1[median_rent1$margin != "***", ]
+
 # remove unneeded columns
 median_rent1 <- subset(median_rent1, select = -c(margin, X))
 
 # turn geo_id into county fips codes
 median_rent1$fips <- substr(median_rent1$fips, nchar(median_rent1$fips) - 4, nchar(median_rent1$fips))
-
-# remove rows with null values for median_gross_rent
-median_rent1 <- median_rent1[median_rent1$median_contract_rent != "null", ]
 
 # convert median_contract_rent column to numeric
 median_rent1$median_contract_rent <- as.numeric(median_rent1$median_contract_rent)
@@ -263,7 +233,7 @@ theme(plot.title = element_text(hjust = 0, size = 25),
         legend.box = "vertical",
         legend.justification = "right",
         legend.spacing = unit(0.5, "cm"),
-        legend.margin = margin(r = -120),
+        legend.margin = margin(r = -130),
         legend.title = element_text(size = 11),
         legend.text = element_text(size = 10),
         legend.key.size = unit(1, "lines"),
@@ -274,5 +244,9 @@ rent_map
 # export map
 ggsave(here("output", "rent_map.jpg"), plot = rent_map, width = 12, height = 9, dpi = 300)
 
+```
+
+
+```{r comparison between 2019 and 2022 demographic values}
 
 ```
