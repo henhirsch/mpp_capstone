@@ -16,6 +16,10 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 # knitr::opts_chunk$set(echo = FALSE)
 # ```
 
+```{r clear environment}
+rm(list=ls())
+```
+
 ```{r load packages}
 library(here)
 library(tidyverse)
@@ -247,7 +251,7 @@ ggsave(here("output", "rent_map.jpg"), plot = rent_map, width = 12, height = 9, 
 ```
 
 
-```{r comparison between 2019 and 2022 state demographics}
+```{r create demographic changes data frame}
 # create duplicate data frames
 demos_2019_1 <- demos_2019_0
 demos_2022_1 <- demos_2022_0
@@ -274,5 +278,25 @@ demos_change <- cbind(demos_change[, 1], state_abbreviations, demos_change[, -1]
 # fix column names
 colnames(demos_change) <- c("state", "state_abbr", "total_sponsors_2019", "total_spouses_2019", "children0-5_2019", "children6-11_2019", "children12-18_2019", "children19-22_2019", "adult_dependents_2019", "total_dependents_2019", "total_personnel_2019", "total_children_2019", "total_sponsors_2022", "total_spouses_2022", "children0-5_2022", "children6-11_2022", "children12-18_2022", "children19-22_2022", "adult_dependents_2022", "total_dependents_2022", "total_personnel_2022", "total_children_2022")
 
+# create change columns
+demos_change$change_total_sponsors <- demos_change$total_sponsors_2022 - demos_change$total_sponsors_2019
+demos_change$change_total_spouses <- demos_change$total_spouses_2022 - demos_change$total_spouses_2019
+demos_change$change_total_children <- demos_change$total_children_2022 - demos_change$total_children_2019
+demos_change$change_total_adult_dependents <- demos_change$adult_dependents_2022 - demos_change$adult_dependents_2019
+demos_change$change_total_dependents <- demos_change$total_dependents_2022 - demos_change$total_dependents_2019
+demos_change$change_total_personnel <- demos_change$total_personnel_2022 - demos_change$total_personnel_2019
+
+# create only changes demographic data frame
+only_demos_change <- demos_change[, c("state_abbr", "change_total_sponsors", "change_total_spouses", "change_total_children", "change_total_adult_dependents", "change_total_dependents", "change_total_personnel")]
+
+# create long data frame
+only_demos_change_long <- pivot_longer(only_demos_change, 
+                            cols = c(change_total_sponsors, change_total_spouses, change_total_children, change_total_adult_dependents, change_total_dependents, change_total_personnel), 
+                            names_to = "demo_group",               
+                            values_to = "change_amount")
+
+```
+
+```{r graph comparison between 2019 and 2022 state demographics}
 
 ```
