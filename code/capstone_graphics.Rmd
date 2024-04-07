@@ -298,5 +298,15 @@ only_demos_change_long <- pivot_longer(only_demos_change,
 ```
 
 ```{r graph comparison between 2019 and 2022 state demographics}
+demo_change_plot <- ggplot(only_demos_change_long, aes(fill = demo_group, y = change_amount, x = state_abbr)) + 
+  geom_bar(position="stack", stat="identity") +
+  ggtitle("Change in Personnel by State (2019 - 2022)") +
+  labs(fill = "Demographic Group") +
+  ylab("Change in Personnel") + 
+  xlab("State")    
+   
+demo_change_plot
 
+# export bar plot
+ggsave(here("output", "demo_change_bar.jpg"), plot = demo_change_plot, width = 12, height = 9, dpi = 300)
 ```
