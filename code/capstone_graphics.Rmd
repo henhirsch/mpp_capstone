@@ -310,15 +310,25 @@ only_demos_change_long <- only_demos_change_long[!is.na(only_demos_change_long$p
 ```
 
 ```{r graph comparison between 2019 and 2022 state demographics}
+# set caption 
+demo_caption_text <- paste("Sources: The Department of Defense's 2019 and 2022 Demographics Reports")
+
+# set wrapped caption width
+demo_wrapped_caption <- paste(strwrap(demo_caption_text, width = 40), collapse = "\n")
+
 demo_change_plot <- ggplot(only_demos_change_long, aes(fill = demo_group, y = percent_change, x = state_abbr)) + 
   geom_bar(position="stack", stat="identity") +
+  theme_minimal() + 
   ggtitle("Percent Change in Personnel Demographics by State (2019 - 2022)") +
-  labs(fill = "Demographic Group") +
+  labs(fill = "Demographic Group",
+       caption = demo_wrapped_caption) +
   ylab("Percent Change in Personnel") + 
   xlab("State") +
   scale_fill_manual(values = c("per_change_total_sponsors" = "red", "per_change_total_spouses" = "blue", "per_change_total_children" = "purple", "per_change_total_adult_dependents" = "orange"),  # Specify colors and labels
                     labels = c("per_change_total_sponsors" = "Active Duty", "per_change_total_spouses" = "Spouses", "per_change_total_children" = "Children", "per_change_total_adult_dependents" = "Adult Dependents")) +
   theme(plot.title = element_text(hjust = 0, size = 25),
+        axis.title.x = element_text(vjust = -2, size = 11),
+        axis.title.y = element_text(size = 11),
         axis.text.x = element_text(size = 7),
         axis.text.y = element_text(size = 8),
         legend.position = "right",
@@ -330,7 +340,8 @@ demo_change_plot <- ggplot(only_demos_change_long, aes(fill = demo_group, y = pe
         legend.title = element_text(size = 11),
         legend.text = element_text(size = 10),
         legend.key.size = unit(1, "lines"),
-        plot.margin = margin(20, 30, 20, 20))
+        plot.margin = margin(20, 30, 20, 20),
+        plot.caption = element_text(hjust = 1.2))
    
 demo_change_plot
 
