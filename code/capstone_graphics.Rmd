@@ -312,13 +312,28 @@ only_demos_change_long <- only_demos_change_long[!is.na(only_demos_change_long$p
 ```{r graph comparison between 2019 and 2022 state demographics}
 demo_change_plot <- ggplot(only_demos_change_long, aes(fill = demo_group, y = percent_change, x = state_abbr)) + 
   geom_bar(position="stack", stat="identity") +
-  ggtitle("Percent Change in Personnel by State (2019 - 2022)") +
+  ggtitle("Percent Change in Personnel Demographics by State (2019 - 2022)") +
   labs(fill = "Demographic Group") +
   ylab("Percent Change in Personnel") + 
-  xlab("State")    
+  xlab("State") +
+  scale_fill_manual(values = c("per_change_total_sponsors" = "red", "per_change_total_spouses" = "blue", "per_change_total_children" = "purple", "per_change_total_adult_dependents" = "orange"),  # Specify colors and labels
+                    labels = c("per_change_total_sponsors" = "Active Duty", "per_change_total_spouses" = "Spouses", "per_change_total_children" = "Children", "per_change_total_adult_dependents" = "Adult Dependents")) +
+  theme(plot.title = element_text(hjust = 0, size = 25),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8),
+        legend.position = "right",
+        legend.direction = "vertical",
+        legend.box = "vertical",
+        legend.justification = "right",
+        legend.spacing = unit(0.5, "cm"),
+        legend.margin = margin(r = -10),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        legend.key.size = unit(1, "lines"),
+        plot.margin = margin(20, 30, 20, 20))
    
 demo_change_plot
 
 # export bar plot
-ggsave(here("output", "demo_change_bar.jpg"), plot = demo_change_plot, width = 12, height = 9, dpi = 300)
+ggsave(here("output", "demographic_change_bar.jpg"), plot = demo_change_plot, width = 12, height = 9, dpi = 300)
 ```
