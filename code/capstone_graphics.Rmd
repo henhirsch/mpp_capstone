@@ -286,23 +286,35 @@ demos_change$change_total_adult_dependents <- demos_change$adult_dependents_2022
 demos_change$change_total_dependents <- demos_change$total_dependents_2022 - demos_change$total_dependents_2019
 demos_change$change_total_personnel <- demos_change$total_personnel_2022 - demos_change$total_personnel_2019
 
+# create percent change columns
+demos_change$per_change_total_sponsors <- demos_change$change_total_sponsors / demos_change$total_sponsors_2019 * 100
+demos_change$per_change_total_spouses <- demos_change$change_total_spouses / demos_change$total_spouses_2019 * 100
+demos_change$per_change_total_children <- demos_change$change_total_children / demos_change$total_children_2019 * 100
+demos_change$per_change_total_adult_dependents <- demos_change$change_total_adult_dependents / demos_change$adult_dependents_2019 * 100
+demos_change$per_change_total_dependents <- demos_change$change_total_dependents / demos_change$total_dependents_2019 * 100
+demos_change$per_change_total_personnel <- demos_change$change_total_personnel / demos_change$total_personnel_2019 * 100
+
+
 # create only changes demographic data frame
-only_demos_change <- demos_change[, c("state_abbr", "change_total_sponsors", "change_total_spouses", "change_total_children", "change_total_adult_dependents", "change_total_dependents", "change_total_personnel")]
+only_demos_change <- demos_change[, c("state_abbr", "per_change_total_sponsors", "per_change_total_spouses", "per_change_total_children", "per_change_total_adult_dependents")]
 
 # create long data frame
 only_demos_change_long <- pivot_longer(only_demos_change, 
-                            cols = c(change_total_sponsors, change_total_spouses, change_total_children, change_total_adult_dependents, change_total_dependents, change_total_personnel), 
+                            cols = c(per_change_total_sponsors, per_change_total_spouses, per_change_total_children, per_change_total_adult_dependents), 
                             names_to = "demo_group",               
-                            values_to = "change_amount")
+                            values_to = "percent_change")
+
+# remove NA values
+only_demos_change_long <- only_demos_change_long[!is.na(only_demos_change_long$percent_change), ]
 
 ```
 
 ```{r graph comparison between 2019 and 2022 state demographics}
-demo_change_plot <- ggplot(only_demos_change_long, aes(fill = demo_group, y = change_amount, x = state_abbr)) + 
+demo_change_plot <- ggplot(only_demos_change_long, aes(fill = demo_group, y = percent_change, x = state_abbr)) + 
   geom_bar(position="stack", stat="identity") +
-  ggtitle("Change in Personnel by State (2019 - 2022)") +
+  ggtitle("Percent Change in Personnel by State (2019 - 2022)") +
   labs(fill = "Demographic Group") +
-  ylab("Change in Personnel") + 
+  ylab("Percent Change in Personnel") + 
   xlab("State")    
    
 demo_change_plot
