@@ -113,11 +113,12 @@ master_data2$fips <- fipio::coords_to_fips(
     y = lat_vector)
 
 # add 09180 for CT New London Naval Base fips
-# Identify the row where the "base" column is equal to "Buckley AFB"
 ct_row_index <- which(master_data2$base == "New London NAVSUBBASE")
-
-# Set the "fips" column for the identified row(s) equal to 80011
 master_data2[ct_row_index, "fips"] <- "09180"
+
+# add 08005 for Buckley AFB fip
+co_row_index <- which(master_data2$base == "Buckley AFB")
+master_data2[co_row_index, "fips"] <- "08005"
 ```
 
 ```{r create median rent data frame}
