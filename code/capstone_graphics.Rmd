@@ -96,12 +96,6 @@ master_data1 <- master_data1[, c("state", "base", "service_branch", "zip_code", 
 # remove rows where base = Other
 master_data2 <- master_data1[master_data1$base != "Other", ]
 
-# remove rows where service_branch = DOD?
-
-# make latitude and longitude columns numeric
-# master_data2$latitude <- as.numeric(master_data2$latitude)
-# master_data2$longitude <- as.numeric(master_data2$longitude)
-
 # set number of decimal points equal to 6
 master_data2$latitude <- format(master_data2$latitude, nsmall = 6)
 master_data2$longitude <- format(master_data2$longitude, nsmall = 6)
@@ -109,6 +103,14 @@ master_data2$longitude <- format(master_data2$longitude, nsmall = 6)
 # make latitude and longitude columns numeric
 master_data2$latitude <- as.numeric(master_data2$latitude)
 master_data2$longitude <- as.numeric(master_data2$longitude)
+
+# convert coordinates to fips
+lon_vector <- master_data2$longitude
+lat_vector <- master_data2$latitude
+
+master_data2$fips <- fipio::coords_to_fips(
+    x = lon_vector,
+    y = lat_vector)
 
 # transform values
 transformed_data <- usmap_transform(master_data2, input_names = c("longitude", "latitude"), output_names = NULL)
@@ -351,15 +353,7 @@ ggsave(here("output", "demographic_change_bar.jpg"), plot = demo_change_plot, wi
 ```
 
 ```{r convert coordinates to FIPS codes}
-# 31.340581, -85.719988
-# fipio::coords_to_fips(y = 31.340581, x = -85.719988)
 
-# create vectors
-lon_vector <- master_data2$longitude
-lat_vector <- master_data2$latitude
-
-master_data2$fips <- fipio::coords_to_fips(
-    x = lon_vector,
-    y = lat_vector)
+# this is a test
     
 ```
