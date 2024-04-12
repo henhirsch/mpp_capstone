@@ -378,10 +378,11 @@ all_installations_rent_map <- plot_usmap() +
     aes(size = total_sponsors, color = median_contract_rent),
     alpha = 0.60
   ) +
-  labs(title = "Median Contract Rent for Counties Containing U.S. Military Installations (2022)",
-       subtitle = "Headcount data is from 2019. Rent data is from 2022.",
+  labs(title = "Median Contract Rent Around U.S. Military Installations (2022)",
+       subtitle = "Installation headcount data is from 2019. County-level rental data is from 2022.",
        caption = installations_rent_wrapped_caption) + 
-  scale_color_continuous(name = "Median Rent",
+  scale_color_continuous(name = "Median Contract Rent",
+                         label = scales::dollar_format(),
                          low = "yellow", high = "red") +
   scale_size_continuous(labels = comma, 
                         name = "Installation Headcount") +
