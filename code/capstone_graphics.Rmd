@@ -111,6 +111,13 @@ lat_vector <- master_data2$latitude
 master_data2$fips <- fipio::coords_to_fips(
     x = lon_vector,
     y = lat_vector)
+
+# add 09180 for CT New London Naval Base fips
+# Identify the row where the "base" column is equal to "Buckley AFB"
+ct_row_index <- which(master_data2$base == "New London NAVSUBBASE")
+
+# Set the "fips" column for the identified row(s) equal to 80011
+master_data2[ct_row_index, "fips"] <- "09180"
 ```
 
 ```{r create median rent data frame}
@@ -136,6 +143,9 @@ median_rent1$median_contract_rent <- as.numeric(median_rent1$median_contract_ren
 
 ```{r merge median rent onto master data frame by fips}
 master_data2 <- merge(master_data2, median_rent1, by = "fips", all.x = TRUE)
+
+# remove rows with NA values in county column
+# master_data2 <- master_data2[!is.na(master_data2$county), ]
 ```
 
 ``` {r transform master data frame coordinates}
