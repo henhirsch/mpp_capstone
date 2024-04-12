@@ -26,6 +26,7 @@ library(tidyverse)
 library(readxl)
 library(usmap)
 library(scales)
+library(fipio)
 ```
 
 The `i_am` function identifies where the Rmd is located within the main project directory. All future calls to files are based on their relative location to the project root.
@@ -230,7 +231,7 @@ rent_map <- plot_usmap(regions = "counties", data = median_rent1, values = "medi
   labs(title = "Median Contract Rent by County (2022)",
        subtitle = wrapped_rent_subtitle,
        caption = rent_wrapped_caption) + 
-  scale_fill_continuous(low = "white", high = "red", name = "Median Contract Rent", label = scales::dollar_format()) + 
+  scale_fill_continuous(low = "yellow", high = "red", name = "Median Contract Rent", label = scales::dollar_format()) + 
 theme(plot.title = element_text(hjust = 0, size = 25),
         legend.position = "left",
         legend.direction = "vertical",
@@ -347,4 +348,18 @@ demo_change_plot
 
 # export bar plot
 ggsave(here("output", "demographic_change_bar.jpg"), plot = demo_change_plot, width = 12, height = 9, dpi = 300)
+```
+
+```{r convert coordinates to FIPS codes}
+# 31.340581, -85.719988
+# fipio::coords_to_fips(y = 31.340581, x = -85.719988)
+
+# create vectors
+lon_vector <- master_data2$longitude
+lat_vector <- master_data2$latitude
+
+master_data2$fips <- fipio::coords_to_fips(
+    x = lon_vector,
+    y = lat_vector)
+    
 ```
