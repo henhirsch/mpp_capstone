@@ -445,7 +445,5 @@ small_installations_rent_map
 
 # export bar plot
 ggsave(here("output", "small_installations_rent_map.jpg"), plot = small_installations_rent_map, width = 12, height = 9, dpi = 300)
-
-# test
     
 ```
