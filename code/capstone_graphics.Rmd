@@ -70,7 +70,7 @@ us_map_headcount
 
 
 
-```{r map all military installation headcounts}
+```{r create master data frame}
 # create copy of initial data frame
 master_data1 <- master_data0
 
@@ -111,10 +111,39 @@ lat_vector <- master_data2$latitude
 master_data2$fips <- fipio::coords_to_fips(
     x = lon_vector,
     y = lat_vector)
+```
 
+```{r create median rent data frame}
+# rename columns
+colnames(median_rent0) <- c("fips", "county", "median_contract_rent", "margin", "X")
+
+# remove first row
+median_rent1 <- median_rent0[-1, ]
+
+# remove null rows 
+median_rent1 <- median_rent1[median_rent1$margin != "**", ]
+median_rent1 <- median_rent1[median_rent1$margin != "***", ]
+
+# remove unneeded columns
+median_rent1 <- subset(median_rent1, select = -c(margin, X))
+
+# turn geo_id into county fips codes
+median_rent1$fips <- substr(median_rent1$fips, nchar(median_rent1$fips) - 4, nchar(median_rent1$fips))
+
+# convert median_contract_rent column to numeric
+median_rent1$median_contract_rent <- as.numeric(median_rent1$median_contract_rent)
+```
+
+```{r merge median rent onto master data frame by fips}
+master_data2 <- merge(master_data2, median_rent1, by = "fips", all.x = TRUE)
+```
+
+``` {r transform master data frame coordinates}
 # transform values
 transformed_data <- usmap_transform(master_data2, input_names = c("longitude", "latitude"), output_names = NULL)
+```
 
+``` {r map all military installation headcounts}
 # set caption text
 installations_caption_text <- paste("Source: The Department of Defense's 2019 Demographics Report. No newer data on military installation headcounts is available. The Department of Defense stopped publishing disaggregated headcount data after 2019.")
 
@@ -196,26 +225,8 @@ small_installations_map
 ggsave(here("output", "small_installations_map.jpg"), plot = small_installations_map, width = 12, height = 9, dpi = 300)
 ```
 
+
 ```{r create map of median contract rent by county for 2022}
-# rename columns
-colnames(median_rent0) <- c("fips", "county", "median_contract_rent", "margin", "X")
-
-# remove first row
-median_rent1 <- median_rent0[-1, ]
-
-# remove null rows 
-median_rent1 <- median_rent1[median_rent1$margin != "**", ]
-median_rent1 <- median_rent1[median_rent1$margin != "***", ]
-
-# remove unneeded columns
-median_rent1 <- subset(median_rent1, select = -c(margin, X))
-
-# turn geo_id into county fips codes
-median_rent1$fips <- substr(median_rent1$fips, nchar(median_rent1$fips) - 4, nchar(median_rent1$fips))
-
-# convert median_contract_rent column to numeric
-median_rent1$median_contract_rent <- as.numeric(median_rent1$median_contract_rent)
-
 # set subtitle
 rent_subtitle_text <- "The American Community Survey defines contract rent as the monthly rent agreed to or contracted for, regardless of any furnishings, utilities, fees, meals, or services that may be included."
 
@@ -354,6 +365,7 @@ ggsave(here("output", "demographic_change_bar.jpg"), plot = demo_change_plot, wi
 
 ```{r convert coordinates to FIPS codes}
 
-# this is a test
+
+
     
 ```
