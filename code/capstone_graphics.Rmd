@@ -363,9 +363,43 @@ demo_change_plot
 ggsave(here("output", "demographic_change_bar.jpg"), plot = demo_change_plot, width = 12, height = 9, dpi = 300)
 ```
 
-```{r convert coordinates to FIPS codes}
+```{r map all installations color coded by rent}
 
+# set caption text
+installations_rent_caption_text <- paste("Sources: The Department of Defense's 2019 Demographics Report and the the U.S. Census Bureau's American Community Survey, 5-Year Data (2009-2022)")
 
+# set wrapped caption width
+installations_rent_wrapped_caption <- paste(strwrap(installations_rent_caption_text, width = 78), collapse = "\n")
 
+# plot map
+all_installations_rent_map <- plot_usmap() +
+  geom_sf(
+    data = transformed_data,
+    aes(size = total_sponsors, color = median_contract_rent),
+    alpha = 0.60
+  ) +
+  labs(title = "Median Contract Rent for Counties Containing U.S. Military Installations (2022)",
+       subtitle = "Headcount data is from 2019. Rent data is from 2022.",
+       caption = installations_rent_wrapped_caption) + 
+  scale_color_continuous(name = "Median Rent",
+                         low = "yellow", high = "red") +
+  scale_size_continuous(labels = comma, 
+                        name = "Installation Headcount") +
+  theme(plot.title = element_text(hjust = 0, size = 25),
+        legend.position = "left",
+        legend.direction = "vertical",
+        legend.box = "vertical",
+        legend.justification = "right",
+        legend.spacing = unit(0.5, "cm"),
+        legend.margin = margin(r = -120),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        legend.key.size = unit(1, "lines"),
+        plot.margin = margin(20, 20, 20, 20))
+
+all_installations_rent_map
+
+# export bar plot
+ggsave(here("output", "all_installations_rent_map.jpg"), plot = all_installations_rent_map, width = 12, height = 9, dpi = 300)
     
 ```
