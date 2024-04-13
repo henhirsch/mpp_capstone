@@ -457,10 +457,19 @@ transformed_data <- arrange(transformed_data, desc(median_contract_rent))
 small_installations <- arrange(small_installations, desc(median_contract_rent))
 
 # export as csv or xlsx? (still need to set save location to output folder)
-#write.csv(transformed_data, "all_installations_data.csv", row.names = FALSE)
-#write.csv(small_installations, "small_installations_data.csv", row.names = FALSE)
+#write.csv(transformed_data, "all_installations.csv", row.names = FALSE)
+#write.csv(small_installations, "small_installations.csv", row.names = FALSE)
 ```
 
-``` {r }
+``` {r create data frames for top candidate installations}
+# filter by presence and absence of services
+all_installations_candidates <- transformed_data[transformed_data$personal_financial_management == "NO" & (transformed_data$chaplains == "YES" | transformed_data$family_support_center == "YES" | transformed_data$morale_welfare_recreation == "YES"), ]
+
+small_installations_candidates <- small_installations[small_installations$personal_financial_management == "NO" & (small_installations$chaplains == "YES" | small_installations$family_support_center == "YES" | small_installations$morale_welfare_recreation == "YES"), ]
+
+# remove NA rows
+all_installations_candidates <- all_installations_candidates[!is.na(all_installations_candidates$family_support_center), ]
+small_installations_candidates <- small_installations_candidates[!is.na(small_installations_candidates$family_support_center), ]
+
 
 ```
