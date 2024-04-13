@@ -91,7 +91,7 @@ master_data1$latitude <- latitude
 master_data1$longitude <- longitude
 
 # change order of columns
-master_data1 <- master_data1[, c("state", "base", "service_branch", "zip_code", "coordinates", "longitude", "latitude", "nmc", "miles_to_nmc", "headcount_below_2000", "total_sponsors", "total_spouses", "children0-5", "children6-11", "children12-18", "children19andup", "other_dependents", "total_personnel")]
+master_data1 <- master_data1[, c("state", "base", "service_branch", "zip_code", "coordinates", "longitude", "latitude", "nmc", "miles_to_nmc", "headcount_below_2000", "total_sponsors", "total_spouses", "children0-5", "children6-11", "children12-18", "children19andup", "other_dependents", "total_personnel", "family_support_center", "personal_financial_management", "chaplains", "morale_welfare_recreation")]
 
 # remove rows where base = Other
 master_data2 <- master_data1[master_data1$base != "Other", ]
@@ -377,7 +377,7 @@ ggsave(here("output", "demographic_change_bar.jpg"), plot = demo_change_plot, wi
 ```{r map all installations color coded by rent}
 
 # set caption text
-installations_rent_caption_text <- paste("Sources: The Department of Defense's 2019 Demographics Report and the the U.S. Census Bureau's American Community Survey, 5-Year Data (2009-2022)")
+installations_rent_caption_text <- paste("Sources: The Department of Defense's 2019 Demographics Report and the U.S. Census Bureau's American Community Survey, 5-Year Data (2009-2022)")
 
 # set wrapped caption width
 installations_rent_wrapped_caption <- paste(strwrap(installations_rent_caption_text, width = 78), collapse = "\n")
@@ -418,13 +418,6 @@ ggsave(here("output", "all_installations_rent_map.jpg"), plot = all_installation
 
 
 ```{r map small installations color coded by rent}
-
-# set caption text
-installations_rent_caption_text <- paste("Sources: The Department of Defense's 2019 Demographics Report and the the U.S. Census Bureau's American Community Survey, 5-Year Data (2009-2022)")
-
-# set wrapped caption width
-installations_rent_wrapped_caption <- paste(strwrap(installations_rent_caption_text, width = 78), collapse = "\n")
-
 # plot map
 small_installations_rent_map <- plot_usmap() +
   geom_sf(
@@ -456,5 +449,18 @@ small_installations_rent_map
 
 # export bar plot
 ggsave(here("output", "small_installations_rent_map.jpg"), plot = small_installations_rent_map, width = 12, height = 9, dpi = 300)
-    
+```
+
+``` {r arrange data frames by cost of living}
+# arrange by descending median contract rent
+transformed_data <- arrange(transformed_data, desc(median_contract_rent))
+small_installations <- arrange(small_installations, desc(median_contract_rent))
+
+# export as csv or xlsx? (still need to set save location to output folder)
+#write.csv(transformed_data, "all_installations_data.csv", row.names = FALSE)
+#write.csv(small_installations, "small_installations_data.csv", row.names = FALSE)
+```
+
+``` {r }
+
 ```
