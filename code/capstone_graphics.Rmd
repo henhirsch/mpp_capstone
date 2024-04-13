@@ -27,6 +27,7 @@ library(readxl)
 library(usmap)
 library(scales)
 library(fipio)
+library(ggrepel)
 ```
 
 The `i_am` function identifies where the Rmd is located within the main project directory. All future calls to files are based on their relative location to the project root.
@@ -463,13 +464,68 @@ small_installations <- arrange(small_installations, desc(median_contract_rent))
 
 ``` {r create data frames for top candidate installations}
 # filter by presence and absence of services
-all_installations_candidates <- transformed_data[transformed_data$personal_financial_management == "NO" & (transformed_data$chaplains == "YES" | transformed_data$family_support_center == "YES" | transformed_data$morale_welfare_recreation == "YES"), ]
+all_installation_candidates <- transformed_data[transformed_data$personal_financial_management == "NO" & (transformed_data$chaplains == "YES" | transformed_data$family_support_center == "YES" | transformed_data$morale_welfare_recreation == "YES"), ]
 
-small_installations_candidates <- small_installations[small_installations$personal_financial_management == "NO" & (small_installations$chaplains == "YES" | small_installations$family_support_center == "YES" | small_installations$morale_welfare_recreation == "YES"), ]
+small_installation_candidates <- small_installations[small_installations$personal_financial_management == "NO" & (small_installations$chaplains == "YES" | small_installations$family_support_center == "YES" | small_installations$morale_welfare_recreation == "YES"), ]
 
 # remove NA rows
-all_installations_candidates <- all_installations_candidates[!is.na(all_installations_candidates$family_support_center), ]
-small_installations_candidates <- small_installations_candidates[!is.na(small_installations_candidates$family_support_center), ]
+all_installation_candidates <- all_installation_candidates[!is.na(all_installation_candidates$family_support_center), ]
+small_installation_candidates <- small_installation_candidates[!is.na(small_installation_candidates$family_support_center), ]
+```
 
+``` {r ^ do the same as above for just installations with no personal financial management services}
+# filter by presence and absence of services
+all_installation_candidates2 <- transformed_data[transformed_data$personal_financial_management == "NO", ]
+
+small_installation_candidates2 <- small_installations[small_installations$personal_financial_management == "NO", ]
+```
+
+```{r map top candidates for all installations}
+# set caption text
+installation_candidates_caption_text <- paste("placeholder")
+
+# set wrapped caption width
+installation_candidates_wrapped_caption <- paste(strwrap(installation_candidates_caption_text, width = 78), collapse = "\n")
+
+# plot map
+all_installation_candidates_map <- plot_usmap() +
+  geom_sf(
+    data = all_installation_candidates2,
+    aes(size = total_sponsors, color = service_branch),
+    alpha = 0.60
+  ) +
+  geom_label_repel(data = all_installation_candidates2,
+                            aes(label = base, geometry = geometry),
+                            size = 3, alpha = 0.8,
+                            label.r = unit(0.5, "lines"), label.size = 0.5,
+                            segment.color = "red", segment.size = 1,
+                            stat = "sf_coordinates", seed = 1002,
+                            max.overlaps = 20) +
+  labs(title = "placeholder",
+       caption = installation_candidates_wrapped_caption) + 
+  scale_color_manual(values = c("Navy" = "blue", 
+                                 "Army" = "green", 
+                                 "Marine Corps" = "red", 
+                                 "Air Force" = "orange", 
+                                 "DOD" = "purple"),
+                     name = "Service Branch") +
+  scale_size_continuous(labels = comma, 
+                        name = "Installation Headcount") +
+  theme(plot.title = element_text(hjust = 0, size = 25),
+        legend.position = "left",
+        legend.direction = "vertical",
+        legend.box = "vertical",
+        legend.justification = "right",
+        legend.spacing = unit(0.5, "cm"),
+        legend.margin = margin(r = -120),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        legend.key.size = unit(1, "lines"),
+        plot.margin = margin(20, 20, 20, 20))
+
+all_installation_candidates_map
+
+# export map
+ggsave(here("output", "all_installation_candidates_map.jpg"), plot = all_installation_candidates_map, width = 12, height = 9, dpi = 300)
 
 ```
