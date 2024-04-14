@@ -208,8 +208,8 @@ small_installations_map <- plot_usmap() +
     aes(size = total_sponsors, color = service_branch),
     alpha = 0.60
   ) +
-  labs(title = "Active Duty Personnel on Small U.S. Military Installations (2019)",
-       subtitle = "Small installations are defined as those with headcounts below 2,000.",
+  labs(title = "Active Duty Personnel on Small* U.S. Military Installations (2019)",
+       subtitle = "* Small installations are defined as those with headcounts below 2,000.",
        caption = installations_wrapped_caption) + 
   scale_color_manual(values = c("Navy" = "blue", 
                                  "Army" = "green", 
@@ -240,7 +240,7 @@ ggsave(here("output", "small_installations_map.jpg"), plot = small_installations
 
 ```{r create map of median contract rent by county for 2022}
 # set subtitle
-rent_subtitle_text <- "The American Community Survey defines contract rent as the monthly rent agreed to or contracted for, regardless of any furnishings, utilities, fees, meals, or services that may be included."
+rent_subtitle_text <- "* The American Community Survey defines contract rent as the monthly rent agreed to or contracted for, regardless of any furnishings, utilities, fees, meals, or services that may be included."
 
 wrapped_rent_subtitle <- str_wrap(rent_subtitle_text, width = 100)
 
@@ -253,7 +253,7 @@ rent_wrapped_caption <- paste(strwrap(rent_caption_text, width = 45), collapse =
 
 # plot rent map
 rent_map <- plot_usmap(regions = "counties", data = median_rent1, values = "median_contract_rent", labels = FALSE) + 
-  labs(title = "Median Contract Rent by County (2022)",
+  labs(title = "Median Contract Rent* by County (2022)",
        subtitle = wrapped_rent_subtitle,
        caption = rent_wrapped_caption) + 
   scale_fill_continuous(low = "yellow", high = "red", name = "Median Contract Rent", label = scales::dollar_format()) + 
@@ -390,8 +390,8 @@ all_installations_rent_map <- plot_usmap() +
     aes(size = total_sponsors, color = median_contract_rent),
     alpha = 0.60
   ) +
-  labs(title = "Median Contract Rent Around U.S. Military Installations (2022)",
-       subtitle = "Installation headcount data is from 2019. County-level rental data is from 2022.",
+  labs(title = "Median Contract Rent* Around U.S. Military Installations (2022)",
+       subtitle = "* The American Community Survey defines contract rent as the monthly rent agreed to or contracted for, regardless of any furnishings, utilities, fees, meals, or services that may be included.",
        caption = installations_rent_wrapped_caption) + 
   scale_color_continuous(name = "Median Contract Rent",
                          label = scales::dollar_format(),
@@ -426,8 +426,8 @@ small_installations_rent_map <- plot_usmap() +
     aes(size = total_sponsors, color = median_contract_rent),
     alpha = 0.60
   ) +
-  labs(title = "Median Contract Rent Around Small U.S. Military Installations (2022)",
-       subtitle = "Installation headcount data is from 2019. County-level rental data is from 2022.",
+  labs(title = "Median Contract Rent Around Small* U.S. Military Installations (2022)",
+       subtitle = "* Small installations are defined as those with headcounts below 2,000.",
        caption = installations_rent_wrapped_caption) + 
   scale_color_continuous(name = "Median Contract Rent",
                          label = scales::dollar_format(),
@@ -500,7 +500,7 @@ all_installation_candidates_map <- plot_usmap() +
                             label.r = unit(0.5, "lines"), label.size = 0.5,
                             segment.color = "red", segment.size = 1,
                             stat = "sf_coordinates", seed = 1002,
-                            max.overlaps = 20) +
+                            max.overlaps = 40) +
   labs(title = "placeholder",
        caption = installation_candidates_wrapped_caption) + 
   scale_color_manual(values = c("Navy" = "blue", 
