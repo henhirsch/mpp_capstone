@@ -452,7 +452,7 @@ small_installations_rent_map
 ggsave(here("output", "small_installations_rent_map.jpg"), plot = small_installations_rent_map, width = 12, height = 9, dpi = 300)
 ```
 
-``` {r arrange data frames by cost of living}
+``` {r arrange data frames by cost of living and export as csvs}
 # arrange by descending median contract rent
 transformed_data <- arrange(transformed_data, desc(median_contract_rent))
 small_installations <- arrange(small_installations, desc(median_contract_rent))
