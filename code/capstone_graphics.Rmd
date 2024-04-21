@@ -42,6 +42,7 @@ i_am("code/capstone_graphics.Rmd")
 data_file1 = "data/DMDC_Website_Location_Report_2312_clean.xlsx"
 data_file2 = "data/installation_data.xlsx"
 data_file3 = "data/median_contract_rent_county_2022.csv"
+data_file4 = "data/usa_spending_contracts.csv"
 ```
 
 
@@ -52,6 +53,7 @@ master_data0 <- read_excel(here(data_file2), sheet = "Master Data Set (2019)")
 median_rent0 <- read.csv(here(data_file3))
 demos_2019_0<- read_excel(here(data_file2), sheet = "State Demos (2019)")
 demos_2022_0<- read_excel(here(data_file2), sheet = "State Demos (2022)")
+contracts0 <- read.csv(here(data_file4))
 ```
 
 
@@ -478,6 +480,16 @@ small_installation_candidates <- small_installation_candidates[!is.na(small_inst
 all_installation_candidates2 <- transformed_data[transformed_data$personal_financial_management == "NO", ]
 
 small_installation_candidates2 <- small_installations[small_installations$personal_financial_management == "NO", ]
+```
+
+```{r clean contracts data}
+# duplicate data frame
+contracts1 <- contracts0
+
+# select columns
+contracts1 <- contracts1[, c("parent_award_agency_name", "total_obligated_amount", "total_outlayed_amount", "current_total_value_of_award", "potential_total_value_of_award", "award_base_action_date_fiscal_year", "award_latest_action_date_fiscal_year", "awarding_agency_name", "awarding_sub_agency_name", "awarding_office_name", "funding_agency_name", "funding_sub_agency_name", "funding_office_name", "object_classes_funding_this_award", "recipient_name", "recipient_name_raw", "recipient_parent_name", "recipient_parent_name_raw", "prime_award_summary_place_of_performance_county_fips_code", "primary_place_of_performance_county_name", "prime_award_summary_place_of_performance_state_fips_code", "primary_place_of_performance_state_code", "primary_place_of_performance_state_name", "product_or_service_code_description", "naics_code", "naics_description", "extent_competed")]
+
+
 ```
 
 ```{r map top candidates for all installations}
