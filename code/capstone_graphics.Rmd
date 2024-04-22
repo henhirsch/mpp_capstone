@@ -482,15 +482,6 @@ all_installation_candidates2 <- transformed_data[transformed_data$personal_finan
 small_installation_candidates2 <- small_installations[small_installations$personal_financial_management == "NO", ]
 ```
 
-```{r clean contracts data}
-# duplicate data frame
-contracts1 <- contracts0
-
-# select columns
-contracts1 <- contracts1[, c("parent_award_agency_name", "total_obligated_amount", "total_outlayed_amount", "current_total_value_of_award", "potential_total_value_of_award", "award_base_action_date_fiscal_year", "award_latest_action_date_fiscal_year", "awarding_agency_name", "awarding_sub_agency_name", "awarding_office_name", "funding_agency_name", "funding_sub_agency_name", "funding_office_name", "object_classes_funding_this_award", "recipient_name", "recipient_name_raw", "recipient_parent_name", "recipient_parent_name_raw", "prime_award_summary_place_of_performance_county_fips_code", "primary_place_of_performance_county_name", "prime_award_summary_place_of_performance_state_fips_code", "primary_place_of_performance_state_code", "primary_place_of_performance_state_name", "product_or_service_code_description", "naics_code", "naics_description", "extent_competed")]
-
-
-```
 
 ```{r map top candidates for all installations}
 # set caption text
@@ -540,4 +531,85 @@ all_installation_candidates_map
 # export map
 ggsave(here("output", "all_installation_candidates_map.jpg"), plot = all_installation_candidates_map, width = 12, height = 9, dpi = 300)
 
+```
+
+
+```{r clean contracts data}
+# duplicate data frame
+contracts1 <- contracts0
+
+# select columns
+contracts1 <- contracts1[, c("parent_award_agency_name", "total_obligated_amount", "current_total_value_of_award", "potential_total_value_of_award", "award_base_action_date_fiscal_year", "award_latest_action_date_fiscal_year", "awarding_agency_name", "awarding_sub_agency_name", "awarding_office_name", "funding_agency_name", "funding_sub_agency_name", "funding_office_name", "object_classes_funding_this_award", "recipient_name", "recipient_name_raw", "recipient_parent_name", "recipient_parent_name_raw", "prime_award_summary_place_of_performance_county_fips_code", "primary_place_of_performance_county_name", "prime_award_summary_place_of_performance_state_fips_code", "primary_place_of_performance_state_code", "primary_place_of_performance_state_name", "product_or_service_code_description", "naics_code", "naics_description", "extent_competed")]
+
+# convert to integer columns
+contracts1[, c("total_obligated_amount", "current_total_value_of_award", "potential_total_value_of_award")] <- lapply(contracts1[, c("total_obligated_amount", "current_total_value_of_award", "potential_total_value_of_award")], as.integer)
+
+# define the breakpoints for the categories
+contract_breaks <- c(0, 1e6, 25e6, 100e6, 500e6, Inf)
+
+# define labels for the categories
+contract_labels <- c("$1,000,000 & Under",
+            "$1,000,001 - $25,000,000",
+            "$25,000,001 - $100,000,000",
+            "$100,000,001 - $500,000,000",
+            "$500,000,001 & Above")
+
+# create a new column with group identifiers
+contracts1$contract_group <- cut(contracts1$total_obligated_amount, breaks = contract_breaks, labels = contract_labels, include.lowest = TRUE)
+
+# select columns for stacked bar graph
+contracts2 <- contracts1[, c("total_obligated_amount", "current_total_value_of_award", "potential_total_value_of_award", "award_base_action_date_fiscal_year", "contract_group")]
+
+# remove NA values
+contracts2 <- contracts2[!is.na(contracts2$contract_group), ]
+```
+
+```{r create contracts stacked bar graph}
+# contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, y = potential_total_value_of_award, fill = contract_group)) +
+#   geom_bar(stat = "identity") +
+#   labs(title = "Stacked Bar Plot of Award Amount by Year and Group",
+#        x = "Year",
+#        y = "Award Amount",
+#        fill = "Groups") +
+#   theme_minimal()
+# contracts_bar
+
+# set caption 
+demo_caption_text <- paste("Sources: The Department of Defense's 2019 and 2022 Demographics Reports")
+
+# set wrapped caption width
+demo_wrapped_caption <- paste(strwrap(demo_caption_text, width = 40), collapse = "\n")
+
+contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, y = total_obligated_amount, fill = contract_group)) + 
+  geom_bar(position="stack", stat="identity") +
+  theme_minimal() + 
+  ggtitle("Percent Change in Personnel Demographics by State (2019 - 2022)") +
+  labs(fill = "Demographic Group",
+       caption = demo_wrapped_caption) +
+  ylab("Percent Change in Personnel") + 
+  xlab("State") +
+  scale_fill_manual(values = c(
+            "$1,000,000 & Under" = "#cbc9e2",
+            "$1,000,001 - $25,000,000" = "#9e9ac8",
+            "$25,000,001 - $100,000,000" = "#756bb1",
+            "$100,000,001 - $500,000,000" = "#54278f",
+            "$500,000,001 & Above" = "purple")) +
+  theme(plot.title = element_text(hjust = 0, size = 25),
+        axis.title.x = element_text(vjust = -2, size = 11),
+        axis.title.y = element_text(size = 11),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 8),
+        legend.position = "right",
+        legend.direction = "vertical",
+        legend.box = "vertical",
+        legend.justification = "right",
+        legend.spacing = unit(0.5, "cm"),
+        legend.margin = margin(r = -10),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        legend.key.size = unit(1, "lines"),
+        plot.margin = margin(20, 30, 20, 20),
+        plot.caption = element_text(hjust = 1.2))
+
+contracts_bar
 ```
