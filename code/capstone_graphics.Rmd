@@ -414,7 +414,7 @@ all_installations_rent_map <- plot_usmap() +
 
 all_installations_rent_map
 
-# export bar plot
+# export map
 ggsave(here("output", "all_installations_rent_map.jpg"), plot = all_installations_rent_map, width = 12, height = 9, dpi = 300)
     
 ```
@@ -450,7 +450,7 @@ small_installations_rent_map <- plot_usmap() +
 
 small_installations_rent_map
 
-# export bar plot
+# export map
 ggsave(here("output", "small_installations_rent_map.jpg"), plot = small_installations_rent_map, width = 12, height = 9, dpi = 300)
 ```
 
@@ -557,37 +557,37 @@ contract_labels <- c("$1,000,000 & Under",
 # create a new column with group identifiers
 contracts1$contract_group <- cut(contracts1$total_obligated_amount, breaks = contract_breaks, labels = contract_labels, include.lowest = TRUE)
 
+# Convert year column to factor
+contracts1$award_base_action_date_fiscal_year <- factor(contracts1$award_base_action_date_fiscal_year)
+
 # select columns for stacked bar graph
 contracts2 <- contracts1[, c("total_obligated_amount", "current_total_value_of_award", "potential_total_value_of_award", "award_base_action_date_fiscal_year", "contract_group")]
 
 # remove NA values
 contracts2 <- contracts2[!is.na(contracts2$contract_group), ]
+
+# remove rows where award_base_action_date_fiscal_year = 2004
+contracts2 <- contracts2[contracts2$award_base_action_date_fiscal_year != 2004, ]
 ```
 
 ```{r create contracts stacked bar graph}
-# contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, y = potential_total_value_of_award, fill = contract_group)) +
-#   geom_bar(stat = "identity") +
-#   labs(title = "Stacked Bar Plot of Award Amount by Year and Group",
-#        x = "Year",
-#        y = "Award Amount",
-#        fill = "Groups") +
-#   theme_minimal()
-# contracts_bar
-
 # set caption 
-demo_caption_text <- paste("Sources: The Department of Defense's 2019 and 2022 Demographics Reports")
+contracts_caption_text <- paste("Sources: placeholder")
 
 # set wrapped caption width
-demo_wrapped_caption <- paste(strwrap(demo_caption_text, width = 40), collapse = "\n")
+contracts_wrapped_caption <- paste(strwrap(contracts_caption_text, width = 40), collapse = "\n")
 
+# create stacked bar graph
 contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, y = total_obligated_amount, fill = contract_group)) + 
   geom_bar(position="stack", stat="identity") +
   theme_minimal() + 
-  ggtitle("Percent Change in Personnel Demographics by State (2019 - 2022)") +
-  labs(fill = "Demographic Group",
-       caption = demo_wrapped_caption) +
-  ylab("Percent Change in Personnel") + 
-  xlab("State") +
+  labs(title = "DOD Financial Readiness* Contracts (2006 - 2023)",
+       subtitle = "* Search terms included financial readiness, financial education, financial literacy, and financial training.",
+       caption = contracts_wrapped_caption,
+       fill = "Contract Size") +
+  ylab("Obligated Funds") + 
+  xlab("Fiscal Year") +
+  scale_y_continuous(labels = label_dollar()) +
   scale_fill_manual(values = c(
             "$1,000,000 & Under" = "#cbc9e2",
             "$1,000,001 - $25,000,000" = "#9e9ac8",
@@ -597,8 +597,9 @@ contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, 
   theme(plot.title = element_text(hjust = 0, size = 25),
         axis.title.x = element_text(vjust = -2, size = 11),
         axis.title.y = element_text(size = 11),
-        axis.text.x = element_text(size = 7),
+        axis.text.x = element_text(size = 8, hjust = 0.5),
         axis.text.y = element_text(size = 8),
+        panel.grid.major.x = element_blank(),
         legend.position = "right",
         legend.direction = "vertical",
         legend.box = "vertical",
@@ -612,4 +613,7 @@ contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, 
         plot.caption = element_text(hjust = 1.2))
 
 contracts_bar
+
+# export bar plot
+ggsave(here("output", "contracts_bar.jpg"), plot = contracts_bar, width = 12, height = 9, dpi = 300)
 ```
