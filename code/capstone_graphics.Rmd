@@ -617,6 +617,9 @@ contracts_caption_text <- paste("Source: USAspending.gov")
 # set wrapped caption width
 contracts_wrapped_caption <- paste(strwrap(contracts_caption_text, width = 100), collapse = "\n")
 
+# create discrete colors
+color_palette <- colorRampPalette(c("lightblue", "purple"))(4)
+
 # create stacked bar graph
 contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, y = total_obligated_amount, fill = contract_group)) + 
   geom_bar(position="stack", stat="identity") +
@@ -629,11 +632,11 @@ contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, 
   xlab("Fiscal Year") +
   scale_y_continuous(labels = label_dollar()) +
   scale_fill_manual(values = c(
-            "$1,000,000 & Under" = "#cbc9e2",
-            "$1,000,001 - $25,000,000" = "#9e9ac8",
-            "$25,000,001 - $100,000,000" = "#756bb1",
-            "$100,000,001 - $500,000,000" = "#54278f",
-            "$500,000,001 & Above" = "purple")) +
+            "$1,000,000 & Under" = color_palette[1],
+            "$1,000,001 - $25,000,000" = color_palette[2],
+            "$25,000,001 - $100,000,000" = color_palette[3],
+            "$100,000,001 - $500,000,000" = color_palette[4],
+            "$500,000,001 & Above" = "red")) +
   theme(plot.title = element_text(hjust = 0, size = 25),
         axis.title.x = element_text(size = 11, vjust = 8),
         axis.title.y = element_text(size = 11, margin = margin(r = 15)),
@@ -664,7 +667,7 @@ contracts_map <- plot_usmap(regions = "counties", data = contracts3, values = "t
   labs(title = "Total DOD Financial Readiness* Contract Funding (2006 - 2023)",
        subtitle = "* Contract search terms included financial readiness, financial education, financial literacy, and financial training.",
        caption = contracts_caption_text) + 
-  scale_fill_continuous(low = "#cbc9e2", high = "#54278f", name = "Total Obligated Funds", label = scales::dollar_format()) + 
+  scale_fill_continuous(low = "lightblue", high = "purple", name = "Total Obligated Funds", label = scales::dollar_format()) + 
 theme(plot.title = element_text(hjust = 0, size = 25),
         legend.position = "left",
         legend.direction = "vertical",
@@ -690,7 +693,7 @@ small_contracts_map <- plot_usmap(regions = "counties", data = contracts3_small,
   labs(title = "Total DOD Financial Readiness Small Contract* Funding (2006 - 2023)",
        subtitle = "* Small contracts are defined as those with $1,000,000 or less in obligated funds.",
        caption = contracts_caption_text) + 
-  scale_fill_continuous(low = "#cbc9e2", high = "#54278f", name = "Total Obligated Funds", label = scales::dollar_format()) + 
+  scale_fill_continuous(low = "lightblue", high = "purple", name = "Total Obligated Funds", label = scales::dollar_format()) + 
 theme(plot.title = element_text(hjust = 0, size = 25),
         legend.position = "left",
         legend.direction = "vertical",
@@ -729,7 +732,7 @@ all_installations_contracts_map <- plot_usmap() +
        caption = installations_rent_wrapped_caption) + 
   scale_color_continuous(name = "Median Contract Rent",
                          label = scales::dollar_format(),
-                         low = "#cbc9e2", high = "#54278f") +
+                         low = "lightblue", high = "purple") +
   scale_size_continuous(labels = comma, 
                         name = "Installation Headcount") +
   theme(plot.title = element_text(hjust = 0, size = 25),
