@@ -572,22 +572,22 @@ contracts2 <- contracts2[contracts2$award_base_action_date_fiscal_year != 2004, 
 
 ```{r create contracts stacked bar graph}
 # set caption 
-contracts_caption_text <- paste("Sources: placeholder")
+contracts_caption_text <- paste("Source: USAspending.gov")
 
 # set wrapped caption width
-contracts_wrapped_caption <- paste(strwrap(contracts_caption_text, width = 40), collapse = "\n")
+contracts_wrapped_caption <- paste(strwrap(contracts_caption_text, width = 100), collapse = "\n")
 
 # create stacked bar graph
 contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, y = total_obligated_amount, fill = contract_group)) + 
   geom_bar(position="stack", stat="identity") +
   theme_minimal() + 
-  labs(title = "DOD Financial Readiness* Contracts (2006 - 2023)",
-       subtitle = "* Search terms included financial readiness, financial education, financial literacy, and financial training.",
+  labs(title = "DOD-Funded Financial Readiness* Contracts (Aggregated by Size)",
+       subtitle = "* Contract search terms included financial readiness, financial education, financial literacy, and financial training.",
        caption = contracts_wrapped_caption,
        fill = "Contract Size") +
-  ylab("Obligated Funds") + 
+  ylab("Obligated Funds (Millions of Dollars)") + 
   xlab("Fiscal Year") +
-  scale_y_continuous(labels = label_dollar()) +
+  scale_y_continuous(labels = function(x) ifelse(x == 0, "0", scales::label_number(scale = 1e-6)(x))) +
   scale_fill_manual(values = c(
             "$1,000,000 & Under" = "#cbc9e2",
             "$1,000,001 - $25,000,000" = "#9e9ac8",
@@ -595,9 +595,9 @@ contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, 
             "$100,000,001 - $500,000,000" = "#54278f",
             "$500,000,001 & Above" = "purple")) +
   theme(plot.title = element_text(hjust = 0, size = 25),
-        axis.title.x = element_text(vjust = -2, size = 11),
+        axis.title.x = element_text(size = 11, vjust = 8),
         axis.title.y = element_text(size = 11),
-        axis.text.x = element_text(size = 8, hjust = 0.5),
+        axis.text.x = element_text(size = 8, vjust = 15),
         axis.text.y = element_text(size = 8),
         panel.grid.major.x = element_blank(),
         legend.position = "right",
@@ -609,8 +609,8 @@ contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, 
         legend.title = element_text(size = 11),
         legend.text = element_text(size = 10),
         legend.key.size = unit(1, "lines"),
-        plot.margin = margin(20, 30, 20, 20),
-        plot.caption = element_text(hjust = 1.2))
+        plot.margin = margin(20, 20, 20, 50),
+        plot.caption = element_text(hjust = 1.3))
 
 contracts_bar
 
