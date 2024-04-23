@@ -534,7 +534,7 @@ ggsave(here("output", "all_installation_candidates_map.jpg"), plot = all_install
 ```
 
 
-```{r clean contracts data}
+```{r clean and manipulate contracts data}
 # duplicate data frame
 contracts1 <- contracts0
 
@@ -561,13 +561,28 @@ contracts1$contract_group <- cut(contracts1$total_obligated_amount, breaks = con
 contracts1$award_base_action_date_fiscal_year <- factor(contracts1$award_base_action_date_fiscal_year)
 
 # select columns for stacked bar graph
-contracts2 <- contracts1[, c("total_obligated_amount", "current_total_value_of_award", "potential_total_value_of_award", "award_base_action_date_fiscal_year", "contract_group")]
+contracts2 <- contracts1[, c("total_obligated_amount", "current_total_value_of_award", "potential_total_value_of_award", "award_base_action_date_fiscal_year", "contract_group", "prime_award_summary_place_of_performance_county_fips_code", "primary_place_of_performance_county_name", "prime_award_summary_place_of_performance_state_fips_code", "primary_place_of_performance_state_code", "primary_place_of_performance_state_name")]
 
 # remove NA values
 contracts2 <- contracts2[!is.na(contracts2$contract_group), ]
 
 # remove rows where award_base_action_date_fiscal_year = 2004
 contracts2 <- contracts2[contracts2$award_base_action_date_fiscal_year != 2004, ]
+
+# groups by fips codes and sum obligated amounts
+contracts3 <- contracts2 %>%
+  group_by(prime_award_summary_place_of_performance_county_fips_code) %>%
+  summarize(total_obligated_amount_sum = sum(total_obligated_amount, na.rm = TRUE))
+
+# remove rows where prime_award_summary_place_of_performance_county_fips_code = NA
+contracts3 <- contracts3[!is.na(contracts3$prime_award_summary_place_of_performance_county_fips_code), ]
+
+# remove rows where total_obligated_amount_sum = 0
+contracts3 <- contracts3[contracts3$total_obligated_amount_sum != 0, ]
+
+# rename columns
+colnames(contracts3) <- c("fips", "total_obligated_amount_sum")
+
 ```
 
 ```{r create contracts stacked bar graph}
@@ -585,9 +600,9 @@ contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, 
        subtitle = "* Contract search terms included financial readiness, financial education, financial literacy, and financial training.",
        caption = contracts_wrapped_caption,
        fill = "Contract Size") +
-  ylab("Obligated Funds (Millions of Dollars)") + 
+  ylab("Obligated Funds") + 
   xlab("Fiscal Year") +
-  scale_y_continuous(labels = function(x) ifelse(x == 0, "0", scales::label_number(scale = 1e-6)(x))) +
+  scale_y_continuous(labels = label_dollar()) +
   scale_fill_manual(values = c(
             "$1,000,000 & Under" = "#cbc9e2",
             "$1,000,001 - $25,000,000" = "#9e9ac8",
@@ -596,7 +611,7 @@ contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, 
             "$500,000,001 & Above" = "purple")) +
   theme(plot.title = element_text(hjust = 0, size = 25),
         axis.title.x = element_text(size = 11, vjust = 8),
-        axis.title.y = element_text(size = 11),
+        axis.title.y = element_text(size = 11, margin = margin(r = 15)),
         axis.text.x = element_text(size = 8, vjust = 15),
         axis.text.y = element_text(size = 8),
         panel.grid.major.x = element_blank(),
@@ -609,11 +624,50 @@ contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, 
         legend.title = element_text(size = 11),
         legend.text = element_text(size = 10),
         legend.key.size = unit(1, "lines"),
-        plot.margin = margin(20, 20, 20, 50),
+        plot.margin = margin(20, 20, 20, 20),
         plot.caption = element_text(hjust = 1.3))
 
 contracts_bar
 
 # export bar plot
 ggsave(here("output", "contracts_bar.jpg"), plot = contracts_bar, width = 12, height = 9, dpi = 300)
+```
+
+```{r map contract funding}
+# set subtitle
+rent_subtitle_text <- "The American Community Survey defines contract rent as the monthly rent agreed to or contracted for, regardless of any furnishings, utilities, fees, meals, or services that may be included."
+
+wrapped_rent_subtitle <- str_wrap(rent_subtitle_text, width = 100)
+
+# set caption 
+rent_caption_text <- paste("Source: The U.S. Census Bureau's American Community Survey, 5-Year Data (2009-2022)")
+
+# set wrapped caption width
+rent_wrapped_caption <- paste(strwrap(rent_caption_text, width = 45), collapse = "\n")
+
+
+# plot rent map
+contracts_map <- plot_usmap(regions = "counties", data = contracts3, values = "total_obligated_amount_sum", labels = FALSE) + 
+  labs(title = "Median Contract Rent by County (2022)",
+       subtitle = wrapped_rent_subtitle,
+       caption = rent_wrapped_caption) + 
+  scale_fill_continuous(low = "#cbc9e2", high = "#54278f", name = "Median Contract Rent", label = scales::dollar_format()) + 
+theme(plot.title = element_text(hjust = 0, size = 25),
+        legend.position = "left",
+        legend.direction = "vertical",
+        legend.box = "vertical",
+        legend.justification = "right",
+        legend.spacing = unit(0.5, "cm"),
+        legend.margin = margin(r = -130),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        legend.key.size = unit(1, "lines"),
+        plot.margin = margin(20, 20, 20, 20))
+
+contracts_map
+
+# export map
+ggsave(here("output", "contracts_map.jpg"), plot = contracts_map, width = 12, height = 9, dpi = 300)
+
+
 ```
