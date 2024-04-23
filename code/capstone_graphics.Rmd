@@ -715,10 +715,10 @@ ggsave(here("output", "small_contracts_map.jpg"), plot = small_contracts_map, wi
 
 ```{r map all installations color coded by contract funding}
 # set caption text
-installations_rent_caption_text <- paste("Sources: The Department of Defense's 2019 Demographics Report and the U.S. Census Bureau's American Community Survey, 5-Year Data (2009-2022)")
+installations_contracts_text <- paste("Sources: The Department of Defense's 2019 Demographics Report and USAspending.gov")
 
 # set wrapped caption width
-installations_rent_wrapped_caption <- paste(strwrap(installations_rent_caption_text, width = 78), collapse = "\n")
+installations_contracts_text_wrapped_caption <- paste(strwrap(installations_contracts_text, width = 50), collapse = "\n")
 
 # plot map
 all_installations_contracts_map <- plot_usmap() +
@@ -727,15 +727,15 @@ all_installations_contracts_map <- plot_usmap() +
     aes(size = total_sponsors, color = total_obligated_amount_sum),
     alpha = 0.60
   ) +
-  labs(title = "Median Contract Rent Around U.S. Military Installations (2022)",
-       subtitle = "Installation headcount data is from 2019. County-level rental data is from 2022.",
-       caption = installations_rent_wrapped_caption) + 
-  scale_color_continuous(name = "Median Contract Rent",
+  labs(title = "Total DOD Financial Readiness Contract Funding per U.S. Military Installation",
+       subtitle = "Installation headcount data is from 2019. County-level contract funding data is aggregated from 2006 - 2023.",
+       caption = installations_contracts_text_wrapped_caption) + 
+  scale_color_continuous(name = "Total Obligated Funds",
                          label = scales::dollar_format(),
                          low = "lightblue", high = "purple") +
   scale_size_continuous(labels = comma, 
                         name = "Installation Headcount") +
-  theme(plot.title = element_text(hjust = 0, size = 25),
+  theme(plot.title = element_text(hjust = 0, size = 24),
         legend.position = "left",
         legend.direction = "vertical",
         legend.box = "vertical",
