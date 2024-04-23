@@ -569,19 +569,32 @@ contracts2 <- contracts2[!is.na(contracts2$contract_group), ]
 # remove rows where award_base_action_date_fiscal_year = 2004
 contracts2 <- contracts2[contracts2$award_base_action_date_fiscal_year != 2004, ]
 
+# create small contracts data frame
+contracts2_small <- contracts2 %>%
+  filter(total_obligated_amount <= 1000000)
+
 # groups by fips codes and sum obligated amounts
 contracts3 <- contracts2 %>%
+  group_by(prime_award_summary_place_of_performance_county_fips_code) %>%
+  summarize(total_obligated_amount_sum = sum(total_obligated_amount, na.rm = TRUE))
+
+contracts3_small <- contracts2_small %>%
   group_by(prime_award_summary_place_of_performance_county_fips_code) %>%
   summarize(total_obligated_amount_sum = sum(total_obligated_amount, na.rm = TRUE))
 
 # remove rows where prime_award_summary_place_of_performance_county_fips_code = NA
 contracts3 <- contracts3[!is.na(contracts3$prime_award_summary_place_of_performance_county_fips_code), ]
 
+contracts3_small <- contracts3_small[!is.na(contracts3_small$prime_award_summary_place_of_performance_county_fips_code), ]
+
 # remove rows where total_obligated_amount_sum = 0
 contracts3 <- contracts3[contracts3$total_obligated_amount_sum != 0, ]
 
+contracts3_small <- contracts3_small[contracts3_small$total_obligated_amount_sum != 0, ]
+
 # rename columns
 colnames(contracts3) <- c("fips", "total_obligated_amount_sum")
+colnames(contracts3_small) <- c("fips", "total_obligated_amount_sum")
 
 ```
 
@@ -633,9 +646,9 @@ contracts_bar
 ggsave(here("output", "contracts_bar.jpg"), plot = contracts_bar, width = 12, height = 9, dpi = 300)
 ```
 
-```{r map contract funding}
+```{r map all contract funding}
 
-# plot rent map
+# plot all contracts map
 contracts_map <- plot_usmap(regions = "counties", data = contracts3, values = "total_obligated_amount_sum", labels = FALSE) + 
   labs(title = "Total DOD Financial Readiness* Contract Funding (2006 - 2023)",
        subtitle = "* Contract search terms included financial readiness, financial education, financial literacy, and financial training.",
@@ -658,5 +671,30 @@ contracts_map
 # export map
 ggsave(here("output", "contracts_map.jpg"), plot = contracts_map, width = 12, height = 9, dpi = 300)
 
+```
+
+```{r plot small contracts map}
+# plot all contracts map
+small_contracts_map <- plot_usmap(regions = "counties", data = contracts3_small, values = "total_obligated_amount_sum", labels = FALSE) + 
+  labs(title = "Total DOD Financial Readiness Small Contract* Funding (2006 - 2023)",
+       subtitle = "* Small contracts are defined as those with $1,000,000 or less in obligated funds.",
+       caption = contracts_caption_text) + 
+  scale_fill_continuous(low = "#cbc9e2", high = "#54278f", name = "Total Obligated Funds", label = scales::dollar_format()) + 
+theme(plot.title = element_text(hjust = 0, size = 25),
+        legend.position = "left",
+        legend.direction = "vertical",
+        legend.box = "vertical",
+        legend.justification = "right",
+        legend.spacing = unit(0.5, "cm"),
+        legend.margin = margin(r = -130),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        legend.key.size = unit(1, "lines"),
+        plot.margin = margin(20, 20, 20, 20))
+
+small_contracts_map
+
+# export map
+ggsave(here("output", "small_contracts_map.jpg"), plot = small_contracts_map, width = 12, height = 9, dpi = 300)
 
 ```
