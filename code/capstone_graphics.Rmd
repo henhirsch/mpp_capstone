@@ -228,11 +228,21 @@ master_data2 <- merge(master_data2, contracts3, by = "fips", all.x = TRUE)
 master_data3 <- master_data2[!is.na(master_data2$total_obligated_amount_sum), ]
 ```
 
+
 ``` {r transform master data frame coordinates}
 # transform values
 transformed_data <- usmap_transform(master_data2, input_names = c("longitude", "latitude"), output_names = NULL)
 transformed_data2 <- usmap_transform(master_data3, input_names = c("longitude", "latitude"), output_names = NULL)
 
+```
+
+```{r create small installations data frames}
+# create small installations data frame
+small_installations <- transformed_data[transformed_data$headcount_below_2000 == "Yes", ]
+
+# create small installations no army data frame
+small_installations_no_army <- transformed_data2[transformed_data2$headcount_below_2000 == "Yes", ]
+small_installations_no_army <- small_installations_no_army[small_installations_no_army$service_branch != "Army", ]
 ```
 
 ``` {r map all military installation headcounts}
@@ -278,18 +288,15 @@ ggsave(here("output", "all_installations_map.jpg"), plot = all_installations_map
 ```
 
 ```{r map military installations with headcount less than 2000}
-# create small installations data frame
-small_installations <- transformed_data[transformed_data$headcount_below_2000 == "Yes", ]
-
 # plot map
-small_installations_map <- plot_usmap() +
+small_installations_no_army_map <- plot_usmap() +
   geom_sf(
-    data = small_installations,
+    data = small_installations_no_army,
     aes(size = total_sponsors, color = service_branch),
     alpha = 0.60
   ) +
-  labs(title = "Active Duty Personnel on Small U.S. Military Installations (2019)",
-       subtitle = "Small installations are defined as those with headcounts below 2,000.",
+  labs(title = "Active Duty Personnel on Small U.S. Military Installations* (Excluding Army)",
+       subtitle = "* Small installations are defined as those with headcounts below 2,000.",
        caption = installations_wrapped_caption) + 
   scale_color_manual(values = c("Navy" = "blue", 
                                  "Army" = "green", 
@@ -299,7 +306,7 @@ small_installations_map <- plot_usmap() +
                      name = "Service Branch") +
   scale_size_continuous(labels = comma, 
                         name = "Installation Headcount") +
-  theme(plot.title = element_text(hjust = 0, size = 25),
+  theme(plot.title = element_text(hjust = 0, size = 24),
         legend.position = "left",
         legend.direction = "vertical",
         legend.box = "vertical",
@@ -311,16 +318,16 @@ small_installations_map <- plot_usmap() +
         legend.key.size = unit(1, "lines"),
         plot.margin = margin(20, 20, 20, 20))
 
-small_installations_map
+small_installations_no_army_map
 
 # export map
-ggsave(here("output", "small_installations_map.jpg"), plot = small_installations_map, width = 12, height = 9, dpi = 300)
+ggsave(here("output", "small_installations_no_army_map.jpg"), plot = small_installations_no_army_map, width = 12, height = 9, dpi = 300)
 ```
 
 
 ```{r create map of median contract rent by county for 2022}
 # set subtitle
-rent_subtitle_text <- "The American Community Survey defines contract rent as the monthly rent agreed to or contracted for, regardless of any furnishings, utilities, fees, meals, or services that may be included."
+rent_subtitle_text <- "* The American Community Survey defines contract rent as the monthly rent agreed to or contracted for, regardless of any furnishings, utilities, fees, meals, or services that may be included."
 
 wrapped_rent_subtitle <- str_wrap(rent_subtitle_text, width = 100)
 
@@ -333,7 +340,7 @@ rent_wrapped_caption <- paste(strwrap(rent_caption_text, width = 45), collapse =
 
 # plot rent map
 rent_map <- plot_usmap(regions = "counties", data = median_rent1, values = "median_contract_rent", labels = FALSE) + 
-  labs(title = "Median Contract Rent by County (2022)",
+  labs(title = "Median Contract Rent* by County (2022)",
        subtitle = wrapped_rent_subtitle,
        caption = rent_wrapped_caption) + 
   scale_fill_continuous(low = "yellow", high = "red", name = "Median Contract Rent", label = scales::dollar_format()) + 
@@ -469,7 +476,7 @@ all_installations_rent_map <- plot_usmap() +
     aes(size = total_sponsors, color = median_contract_rent),
     alpha = 0.60
   ) +
-  labs(title = "Median Contract Rent Around U.S. Military Installations (2022)",
+  labs(title = "Median Contract Rent Around U.S. Military Installations",
        subtitle = "Installation headcount data is from 2019. County-level rental data is from 2022.",
        caption = installations_rent_wrapped_caption) + 
   scale_color_continuous(name = "Median Contract Rent",
@@ -498,37 +505,37 @@ ggsave(here("output", "all_installations_rent_map.jpg"), plot = all_installation
 
 
 ```{r map small installations color coded by rent}
-# plot map
-small_installations_rent_map <- plot_usmap() +
-  geom_sf(
-    data = small_installations,
-    aes(size = total_sponsors, color = median_contract_rent),
-    alpha = 0.60
-  ) +
-  labs(title = "Median Contract Rent Around Small U.S. Military Installations (2022)",
-       subtitle = "Installation headcount data is from 2019. County-level rental data is from 2022.",
-       caption = installations_rent_wrapped_caption) + 
-  scale_color_continuous(name = "Median Contract Rent",
-                         label = scales::dollar_format(),
-                         low = "yellow", high = "red") +
-  scale_size_continuous(labels = comma, 
-                        name = "Installation Headcount") +
-  theme(plot.title = element_text(hjust = 0, size = 25),
-        legend.position = "left",
-        legend.direction = "vertical",
-        legend.box = "vertical",
-        legend.justification = "right",
-        legend.spacing = unit(0.5, "cm"),
-        legend.margin = margin(r = -120),
-        legend.title = element_text(size = 11),
-        legend.text = element_text(size = 10),
-        legend.key.size = unit(1, "lines"),
-        plot.margin = margin(20, 20, 20, 20))
-
-small_installations_rent_map
-
-# export map
-ggsave(here("output", "small_installations_rent_map.jpg"), plot = small_installations_rent_map, width = 12, height = 9, dpi = 300)
+# # plot map
+# small_installations_rent_map <- plot_usmap() +
+#   geom_sf(
+#     data = small_installations,
+#     aes(size = total_sponsors, color = median_contract_rent),
+#     alpha = 0.60
+#   ) +
+#   labs(title = "Median Contract Rent Around Small U.S. Military Installations",
+#        subtitle = "Installation headcount data is from 2019. County-level rental data is from 2022.",
+#        caption = installations_rent_wrapped_caption) + 
+#   scale_color_continuous(name = "Median Contract Rent",
+#                          label = scales::dollar_format(),
+#                          low = "yellow", high = "red") +
+#   scale_size_continuous(labels = comma, 
+#                         name = "Installation Headcount") +
+#   theme(plot.title = element_text(hjust = 0, size = 25),
+#         legend.position = "left",
+#         legend.direction = "vertical",
+#         legend.box = "vertical",
+#         legend.justification = "right",
+#         legend.spacing = unit(0.5, "cm"),
+#         legend.margin = margin(r = -120),
+#         legend.title = element_text(size = 11),
+#         legend.text = element_text(size = 10),
+#         legend.key.size = unit(1, "lines"),
+#         plot.margin = margin(20, 20, 20, 20))
+# 
+# small_installations_rent_map
+# 
+# # export map
+# ggsave(here("output", "small_installations_rent_map.jpg"), plot = small_installations_rent_map, width = 12, height = 9, dpi = 300)
 ```
 
 ``` {r arrange data frames by cost of living and export as csvs}
@@ -561,52 +568,52 @@ small_installation_candidates2 <- small_installations[small_installations$person
 
 
 ```{r map top candidates for all installations}
-# set caption text
-installation_candidates_caption_text <- paste("placeholder")
-
-# set wrapped caption width
-installation_candidates_wrapped_caption <- paste(strwrap(installation_candidates_caption_text, width = 78), collapse = "\n")
-
-# plot map
-all_installation_candidates_map <- plot_usmap() +
-  geom_sf(
-    data = all_installation_candidates2,
-    aes(size = total_sponsors, color = service_branch),
-    alpha = 0.60
-  ) +
-  geom_label_repel(data = all_installation_candidates2,
-                            aes(label = base, geometry = geometry),
-                            size = 3, alpha = 0.8,
-                            label.r = unit(0.5, "lines"), label.size = 0.5,
-                            segment.color = "red", segment.size = 1,
-                            stat = "sf_coordinates", seed = 1002,
-                            max.overlaps = 20) +
-  labs(title = "placeholder",
-       caption = installation_candidates_wrapped_caption) + 
-  scale_color_manual(values = c("Navy" = "blue", 
-                                 "Army" = "green", 
-                                 "Marine Corps" = "red", 
-                                 "Air Force" = "orange", 
-                                 "DOD" = "purple"),
-                     name = "Service Branch") +
-  scale_size_continuous(labels = comma, 
-                        name = "Installation Headcount") +
-  theme(plot.title = element_text(hjust = 0, size = 25),
-        legend.position = "left",
-        legend.direction = "vertical",
-        legend.box = "vertical",
-        legend.justification = "right",
-        legend.spacing = unit(0.5, "cm"),
-        legend.margin = margin(r = -120),
-        legend.title = element_text(size = 11),
-        legend.text = element_text(size = 10),
-        legend.key.size = unit(1, "lines"),
-        plot.margin = margin(20, 20, 20, 20))
-
-all_installation_candidates_map
-
-# export map
-ggsave(here("output", "all_installation_candidates_map.jpg"), plot = all_installation_candidates_map, width = 12, height = 9, dpi = 300)
+# # set caption text
+# installation_candidates_caption_text <- paste("placeholder")
+# 
+# # set wrapped caption width
+# installation_candidates_wrapped_caption <- paste(strwrap(installation_candidates_caption_text, width = 78), collapse = "\n")
+# 
+# # plot map
+# all_installation_candidates_map <- plot_usmap() +
+#   geom_sf(
+#     data = all_installation_candidates2,
+#     aes(size = total_sponsors, color = service_branch),
+#     alpha = 0.60
+#   ) +
+#   geom_label_repel(data = all_installation_candidates2,
+#                             aes(label = base, geometry = geometry),
+#                             size = 3, alpha = 0.8,
+#                             label.r = unit(0.5, "lines"), label.size = 0.5,
+#                             segment.color = "red", segment.size = 1,
+#                             stat = "sf_coordinates", seed = 1002,
+#                             max.overlaps = 20) +
+#   labs(title = "placeholder",
+#        caption = installation_candidates_wrapped_caption) + 
+#   scale_color_manual(values = c("Navy" = "blue", 
+#                                  "Army" = "green", 
+#                                  "Marine Corps" = "red", 
+#                                  "Air Force" = "orange", 
+#                                  "DOD" = "purple"),
+#                      name = "Service Branch") +
+#   scale_size_continuous(labels = comma, 
+#                         name = "Installation Headcount") +
+#   theme(plot.title = element_text(hjust = 0, size = 25),
+#         legend.position = "left",
+#         legend.direction = "vertical",
+#         legend.box = "vertical",
+#         legend.justification = "right",
+#         legend.spacing = unit(0.5, "cm"),
+#         legend.margin = margin(r = -120),
+#         legend.title = element_text(size = 11),
+#         legend.text = element_text(size = 10),
+#         legend.key.size = unit(1, "lines"),
+#         plot.margin = margin(20, 20, 20, 20))
+# 
+# all_installation_candidates_map
+# 
+# # export map
+# ggsave(here("output", "all_installation_candidates_map.jpg"), plot = all_installation_candidates_map, width = 12, height = 9, dpi = 300)
 
 ```
 
@@ -617,14 +624,11 @@ contracts_caption_text <- paste("Source: USAspending.gov")
 # set wrapped caption width
 contracts_wrapped_caption <- paste(strwrap(contracts_caption_text, width = 100), collapse = "\n")
 
-# create discrete colors
-color_palette <- colorRampPalette(c("lightblue", "purple"))(4)
-
 # create stacked bar graph
 contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, y = total_obligated_amount, fill = contract_group)) + 
   geom_bar(position="stack", stat="identity") +
   theme_minimal() + 
-  labs(title = "DOD-Funded Financial Readiness* Contracts (Aggregated by Size)",
+  labs(title = "DOD-Funded Financial Readiness Contracts* (Aggregated by Size)",
        subtitle = "* Contract search terms included financial readiness, financial education, financial literacy, and financial training.",
        caption = contracts_wrapped_caption,
        fill = "Contract Size") +
@@ -632,10 +636,10 @@ contracts_bar <- ggplot(contracts2, aes(x = award_base_action_date_fiscal_year, 
   xlab("Fiscal Year") +
   scale_y_continuous(labels = label_dollar()) +
   scale_fill_manual(values = c(
-            "$1,000,000 & Under" = color_palette[1],
-            "$1,000,001 - $25,000,000" = color_palette[2],
-            "$25,000,001 - $100,000,000" = color_palette[3],
-            "$100,000,001 - $500,000,000" = color_palette[4],
+            "$1,000,000 & Under" = "#dadaeb",
+            "$1,000,001 - $25,000,000" = "#9e9ac8",
+            "$25,000,001 - $100,000,000" = "#6a51a3",
+            "$100,000,001 - $500,000,000" = "#3f007d",
             "$500,000,001 & Above" = "red")) +
   theme(plot.title = element_text(hjust = 0, size = 25),
         axis.title.x = element_text(size = 11, vjust = 8),
@@ -664,10 +668,10 @@ ggsave(here("output", "contracts_bar.jpg"), plot = contracts_bar, width = 12, he
 ```{r map all contract funding}
 # plot all contracts map
 contracts_map <- plot_usmap(regions = "counties", data = contracts3, values = "total_obligated_amount_sum", labels = FALSE) + 
-  labs(title = "Total DOD Financial Readiness* Contract Funding (2006 - 2023)",
+  labs(title = "Total DOD Financial Readiness Contract Funding* (2006 - 2023)",
        subtitle = "* Contract search terms included financial readiness, financial education, financial literacy, and financial training.",
        caption = contracts_caption_text) + 
-  scale_fill_continuous(low = "lightblue", high = "purple", name = "Total Obligated Funds", label = scales::dollar_format()) + 
+  scale_fill_continuous(low = "orange", high = "blue", name = "Total Obligated Funds", label = scales::dollar_format()) + 
 theme(plot.title = element_text(hjust = 0, size = 25),
         legend.position = "left",
         legend.direction = "vertical",
@@ -690,10 +694,10 @@ ggsave(here("output", "contracts_map.jpg"), plot = contracts_map, width = 12, he
 ```{r plot small contracts map}
 # plot all contracts map
 small_contracts_map <- plot_usmap(regions = "counties", data = contracts3_small, values = "total_obligated_amount_sum", labels = FALSE) + 
-  labs(title = "Total DOD Financial Readiness Small Contract* Funding (2006 - 2023)",
+  labs(title = "Total DOD Financial Readiness Small Contract Funding* (2006 - 2023)",
        subtitle = "* Small contracts are defined as those with $1,000,000 or less in obligated funds.",
        caption = contracts_caption_text) + 
-  scale_fill_continuous(low = "lightblue", high = "purple", name = "Total Obligated Funds", label = scales::dollar_format()) + 
+  scale_fill_continuous(low = "orange", high = "blue", name = "Total Obligated Funds", label = scales::dollar_format()) + 
 theme(plot.title = element_text(hjust = 0, size = 25),
         legend.position = "left",
         legend.direction = "vertical",
@@ -721,21 +725,21 @@ installations_contracts_text <- paste("Sources: The Department of Defense's 2019
 installations_contracts_text_wrapped_caption <- paste(strwrap(installations_contracts_text, width = 50), collapse = "\n")
 
 # plot map
-all_installations_contracts_map <- plot_usmap() +
+small_installations_no_army_contracts_map <- plot_usmap() +
   geom_sf(
-    data = transformed_data2,
+    data = small_installations_no_army,
     aes(size = total_sponsors, color = total_obligated_amount_sum),
     alpha = 0.60
   ) +
-  labs(title = "Total DOD Financial Readiness Contract Funding per U.S. Military Installation",
+  labs(title = "Total DOD Financial Readiness Contract Funding on Small U.S. Military Installations",
        subtitle = "Installation headcount data is from 2019. County-level contract funding data is aggregated from 2006 - 2023.",
        caption = installations_contracts_text_wrapped_caption) + 
   scale_color_continuous(name = "Total Obligated Funds",
                          label = scales::dollar_format(),
-                         low = "lightblue", high = "purple") +
+                         low = "orange", high = "blue") +
   scale_size_continuous(labels = comma, 
                         name = "Installation Headcount") +
-  theme(plot.title = element_text(hjust = 0, size = 24),
+  theme(plot.title = element_text(hjust = 0, size = 22),
         legend.position = "left",
         legend.direction = "vertical",
         legend.box = "vertical",
@@ -747,9 +751,9 @@ all_installations_contracts_map <- plot_usmap() +
         legend.key.size = unit(1, "lines"),
         plot.margin = margin(20, 20, 20, 20))
 
-all_installations_contracts_map
+small_installations_no_army_contracts_map
 
 # export map
-ggsave(here("output", "all_installations_contracts_map.jpg"), plot = all_installations_contracts_map, width = 12, height = 9, dpi = 300)
+ggsave(here("output", "small_installations_no_army_contracts_map.jpg"), plot = small_installations_no_army_contracts_map, width = 12, height = 9, dpi = 300)
     
 ```
