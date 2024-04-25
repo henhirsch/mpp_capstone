@@ -119,9 +119,21 @@ master_data2$fips <- fipio::coords_to_fips(
 ct_row_index <- which(master_data2$base == "New London NAVSUBBASE")
 master_data2[ct_row_index, "fips"] <- "09180"
 
-# add 08005 for Buckley AFB fip
-co_row_index <- which(master_data2$base == "Buckley AFB")
-master_data2[co_row_index, "fips"] <- "08005"
+# add 08005 for Buckley AFB fips
+co_row_index1 <- which(master_data2$base == "Buckley AFB")
+master_data2[co_row_index1, "fips"] <- "08005"
+
+# add 08041 for Schriever AFB fips
+co_row_index2 <- which(master_data2$base == "Schriever AFB")
+master_data2[co_row_index2, "fips"] <- "08041"
+
+# add 08041 for Peterson AFB fips
+co_row_index3 <- which(master_data2$base == "Peterson AFB")
+master_data2[co_row_index3, "fips"] <- "08041"
+
+# add 08041 for Fort Carson fips
+co_row_index4 <- which(master_data2$base == "Fort Carson")
+master_data2[co_row_index4, "fips"] <- "08041"
 ```
 
 ```{r create median rent data frame}
@@ -436,10 +448,10 @@ demo_wrapped_caption <- paste(strwrap(demo_caption_text, width = 40), collapse =
 demo_change_plot <- ggplot(only_demos_change_long, aes(fill = demo_group, y = percent_change, x = state_abbr)) + 
   geom_bar(position="stack", stat="identity") +
   theme_minimal() + 
-  ggtitle("Percent Change in Personnel Demographics by State (2019 - 2022)") +
+  ggtitle("Percentage Change in Personnel Demographics by State (2019 - 2022)") +
   labs(fill = "Demographic Group",
        caption = demo_wrapped_caption) +
-  ylab("Percent Change in Personnel") + 
+  ylab("Percentage Change in Personnel") + 
   xlab("State") +
   scale_fill_manual(values = c("per_change_total_sponsors" = "red", "per_change_total_spouses" = "blue", "per_change_total_children" = "purple", "per_change_total_adult_dependents" = "orange"),  # Specify colors and labels
                     labels = c("per_change_total_sponsors" = "Active Duty", "per_change_total_spouses" = "Spouses", "per_change_total_children" = "Children", "per_change_total_adult_dependents" = "Adult Dependents")) +
@@ -736,7 +748,7 @@ small_installations_no_army_contracts_map <- plot_usmap() +
     alpha = 0.60
   ) +
   labs(title = "Total DOD Financial Readiness Contract Funding on Small U.S. Military Installations",
-       subtitle = "Installation headcount data is from 2019. County-level contract funding data is aggregated from 2006 - 2023.",
+       subtitle = "Army installations are excluded. Installation headcount data is from 2019. County-level contract funding data is aggregated from 2006 - 2023.",
        caption = installations_contracts_text_wrapped_caption) + 
   scale_color_continuous(name = "Total Obligated Funds",
                          label = scales::dollar_format(),
@@ -771,7 +783,7 @@ small_installations_no_army_small_contracts_map <- plot_usmap() +
     alpha = 0.60
   ) +
   labs(title = "Total DOD Financial Readiness Small Contract Funding on Small U.S. Military Installations",
-       subtitle = "Installation headcount data is from 2019. County-level contract funding data is aggregated from 2006 - 2023.",
+       subtitle = "Army installations are excluded. Installation headcount data is from 2019. County-level contract funding data is aggregated from 2006 - 2023.",
        caption = installations_contracts_text_wrapped_caption) + 
   scale_color_continuous(name = "Total Obligated Funds",
                          label = scales::dollar_format(),
