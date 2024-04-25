@@ -58,16 +58,16 @@ contracts0 <- read.csv(here(data_file4))
 
 
 ``` {r generate US headcount graphic}
-state_headcounts <- headcount0[c(1:4, 7:53), 1:8]
-colnames(state_headcounts) <- c("state", "army", "naval", "marines", "air", "space", "coast", "active_duty_total")
-
-us_map_headcount <- plot_usmap(regions = "states", data = state_headcounts, values = "active_duty_total", labels = FALSE) + 
-  labs(title = "Active Duty Personnel in the United States",
-       subtitle = "Would per capita be more helpful?") + 
-  scale_fill_continuous(low = "white", high = "#454B1B", name = "Number of Personnel", label = scales::comma) + 
-  theme(panel.background=element_blank(),
-        legend.position = "right")
-us_map_headcount
+# state_headcounts <- headcount0[c(1:4, 7:53), 1:8]
+# colnames(state_headcounts) <- c("state", "army", "naval", "marines", "air", "space", "coast", "active_duty_total")
+# 
+# us_map_headcount <- plot_usmap(regions = "states", data = state_headcounts, values = "active_duty_total", labels = FALSE) + 
+#   labs(title = "Active Duty Personnel in the United States",
+#        subtitle = "Would per capita be more helpful?") + 
+#   scale_fill_continuous(low = "white", high = "#454B1B", name = "Number of Personnel", label = scales::comma) + 
+#   theme(panel.background=element_blank(),
+#         legend.position = "right")
+# us_map_headcount
 
 ```
 
@@ -217,7 +217,7 @@ contracts3_small <- contracts3_small[contracts3_small$total_obligated_amount_sum
 
 # rename columns
 colnames(contracts3) <- c("fips", "total_obligated_amount_sum")
-colnames(contracts3_small) <- c("fips", "total_obligated_amount_sum")
+colnames(contracts3_small) <- c("fips", "small_total_obligated_amount_sum")
 ```
 
 ```{r merge contracts3 onto master_data2 by fips}
@@ -243,6 +243,9 @@ small_installations <- transformed_data[transformed_data$headcount_below_2000 ==
 # create small installations no army data frame
 small_installations_no_army <- transformed_data2[transformed_data2$headcount_below_2000 == "Yes", ]
 small_installations_no_army <- small_installations_no_army[small_installations_no_army$service_branch != "Army", ]
+
+# merge small contract data onto small installations by fips
+small_installations_no_army <- merge(small_installations_no_army, contracts3_small, by = "fips", all.x = TRUE)
 ```
 
 ``` {r map all military installation headcounts}
@@ -259,7 +262,8 @@ all_installations_map <- plot_usmap() +
     aes(size = total_sponsors, color = service_branch),
     alpha = 0.60
   ) +
-  labs(title = "Active Duty Personnel on U.S. Military Installations (2019)",
+  labs(title = "Active Duty Personnel on U.S. Military Installations",
+       subtitle = "Installation headcount data is from 2019.",
        caption = installations_wrapped_caption) + 
   scale_color_manual(values = c("Navy" = "blue", 
                                  "Army" = "green", 
@@ -327,9 +331,9 @@ ggsave(here("output", "small_installations_no_army_map.jpg"), plot = small_insta
 
 ```{r create map of median contract rent by county for 2022}
 # set subtitle
-rent_subtitle_text <- "* The American Community Survey defines contract rent as the monthly rent agreed to or contracted for, regardless of any furnishings, utilities, fees, meals, or services that may be included."
+rent_subtitle_text <- "* The American Community Survey defines contract rent as the monthly rent agreed to or contracted for, regardless of any furnishings, utilities, fees, meals, or services that may be included. County-level rental data is from 2022."
 
-wrapped_rent_subtitle <- str_wrap(rent_subtitle_text, width = 100)
+wrapped_rent_subtitle <- str_wrap(rent_subtitle_text, width = 90)
 
 # set caption 
 rent_caption_text <- paste("Source: The U.S. Census Bureau's American Community Survey, 5-Year Data (2009-2022)")
@@ -340,7 +344,7 @@ rent_wrapped_caption <- paste(strwrap(rent_caption_text, width = 45), collapse =
 
 # plot rent map
 rent_map <- plot_usmap(regions = "counties", data = median_rent1, values = "median_contract_rent", labels = FALSE) + 
-  labs(title = "Median Contract Rent* by County (2022)",
+  labs(title = "Median Contract Rent* by County",
        subtitle = wrapped_rent_subtitle,
        caption = rent_wrapped_caption) + 
   scale_fill_continuous(low = "yellow", high = "red", name = "Median Contract Rent", label = scales::dollar_format()) + 
@@ -693,7 +697,7 @@ ggsave(here("output", "contracts_map.jpg"), plot = contracts_map, width = 12, he
 
 ```{r plot small contracts map}
 # plot all contracts map
-small_contracts_map <- plot_usmap(regions = "counties", data = contracts3_small, values = "total_obligated_amount_sum", labels = FALSE) + 
+small_contracts_map <- plot_usmap(regions = "counties", data = contracts3_small, values = "small_total_obligated_amount_sum", labels = FALSE) + 
   labs(title = "Total DOD Financial Readiness Small Contract Funding* (2006 - 2023)",
        subtitle = "* Small contracts are defined as those with $1,000,000 or less in obligated funds.",
        caption = contracts_caption_text) + 
@@ -717,7 +721,7 @@ ggsave(here("output", "small_contracts_map.jpg"), plot = small_contracts_map, wi
 
 ```
 
-```{r map all installations color coded by contract funding}
+```{r map small installations (no army) color coded by contract funding}
 # set caption text
 installations_contracts_text <- paste("Sources: The Department of Defense's 2019 Demographics Report and USAspending.gov")
 
@@ -756,4 +760,38 @@ small_installations_no_army_contracts_map
 # export map
 ggsave(here("output", "small_installations_no_army_contracts_map.jpg"), plot = small_installations_no_army_contracts_map, width = 12, height = 9, dpi = 300)
     
+```
+
+```{r map small installations (no army) color coded by small contract funding}
+# plot map
+small_installations_no_army_small_contracts_map <- plot_usmap() +
+  geom_sf(
+    data = small_installations_no_army,
+    aes(size = total_sponsors, color = small_total_obligated_amount_sum),
+    alpha = 0.60
+  ) +
+  labs(title = "Total DOD Financial Readiness Small Contract Funding on Small U.S. Military Installations",
+       subtitle = "Installation headcount data is from 2019. County-level contract funding data is aggregated from 2006 - 2023.",
+       caption = installations_contracts_text_wrapped_caption) + 
+  scale_color_continuous(name = "Total Obligated Funds",
+                         label = scales::dollar_format(),
+                         low = "orange", high = "blue") +
+  scale_size_continuous(labels = comma, 
+                        name = "Installation Headcount") +
+  theme(plot.title = element_text(hjust = 0, size = 20),
+        legend.position = "left",
+        legend.direction = "vertical",
+        legend.box = "vertical",
+        legend.justification = "right",
+        legend.spacing = unit(0.5, "cm"),
+        legend.margin = margin(r = -120),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        legend.key.size = unit(1, "lines"),
+        plot.margin = margin(20, 20, 20, 20))
+
+small_installations_no_army_small_contracts_map
+
+# export map
+ggsave(here("output", "small_installations_no_army_small_contracts_map.jpg"), plot = small_installations_no_army_small_contracts_map, width = 12, height = 9, dpi = 300)
 ```
