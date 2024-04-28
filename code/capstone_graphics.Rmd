@@ -807,3 +807,77 @@ small_installations_no_army_small_contracts_map
 # export map
 ggsave(here("output", "small_installations_no_army_small_contracts_map.jpg"), plot = small_installations_no_army_small_contracts_map, width = 12, height = 9, dpi = 300)
 ```
+
+
+```{r FOR POSTER ONLY map small installations (no army) color coded by contract funding}
+# plot map
+for_poster_small_installations_no_army_contracts_map <- plot_usmap() +
+  geom_sf(
+    data = small_installations_no_army,
+    aes(size = total_sponsors, color = total_obligated_amount_sum),
+    alpha = 0.60
+  ) +
+  labs(title = "Total DOD Financial Readiness Contract Funding on Small U.S. Military Installations",
+       subtitle = "Small installations are defined as those with headcounts below 2,000. Army installations are excluded. Headcount data is from 2019. County-level contract funding data is aggregated from 2006 - 2023.",
+       caption = installations_contracts_text_wrapped_caption) + 
+  scale_color_continuous(name = "Total Obligated Funds",
+                         label = scales::dollar_format(),
+                         low = "orange", high = "blue") +
+  scale_size_continuous(labels = comma, 
+                        name = "Installation Headcount") +
+  theme(plot.title = element_text(hjust = 0, size = 22),
+        legend.position = "left",
+        legend.direction = "vertical",
+        legend.box = "vertical",
+        legend.justification = "right",
+        legend.spacing = unit(0.5, "cm"),
+        legend.margin = margin(r = -120),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        legend.key.size = unit(1, "lines"),
+        plot.margin = margin(20, 20, 20, 20))
+
+for_poster_small_installations_no_army_contracts_map
+
+# export map
+ggsave(here("output", "small_installations_no_army_contracts_map_FOR_POSTER.jpg"), plot = for_poster_small_installations_no_army_contracts_map, width = 12, height = 9, dpi = 300)
+    
+```
+
+```{r testing}
+# remove rows where personal_financial_mamangement = YES
+small_installations_no_army2 <- small_installations_no_army[small_installations_no_army$personal_financial_management != "YES", ]
+
+# plot map
+for_poster_small_installations_no_army_contracts_map2 <- plot_usmap() +
+  geom_sf(
+    data = small_installations_no_army2,
+    aes(size = total_sponsors, color = small_total_obligated_amount_sum),
+    alpha = 0.60
+  ) +
+  labs(title = "Total DOD Financial Readiness Contract Funding on Small U.S. Military Installations",
+       subtitle = "Small installations are defined as those with headcounts below 2,000. Army installations are excluded. Headcount data is from 2019. County-level contract funding data is aggregated from 2006 - 2023.",
+       caption = installations_contracts_text_wrapped_caption) + 
+  scale_color_continuous(name = "Total Obligated Funds",
+                         label = scales::dollar_format(),
+                         low = "orange", high = "blue") +
+  scale_size_continuous(labels = comma, 
+                        name = "Installation Headcount") +
+  theme(plot.title = element_text(hjust = 0, size = 22),
+        legend.position = "left",
+        legend.direction = "vertical",
+        legend.box = "vertical",
+        legend.justification = "right",
+        legend.spacing = unit(0.5, "cm"),
+        legend.margin = margin(r = -120),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        legend.key.size = unit(1, "lines"),
+        plot.margin = margin(20, 20, 20, 20))
+
+for_poster_small_installations_no_army_contracts_map2
+
+# export map
+ggsave(here("output", "small_installations_no_army_contracts_map_FOR_POSTER2.jpg"), plot = for_poster_small_installations_no_army_contracts_map2, width = 12, height = 9, dpi = 300)
+
+```
